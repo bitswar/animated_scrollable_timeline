@@ -23,11 +23,13 @@ class MyApp extends StatelessWidget {
         body: Stack(
           children: [
             const AnimatedScrollableTimelineWidget(),
-            Center(
+            Positioned(
+              left: MediaQuery.of(context).size.width / 2,
+              top: MediaQuery.of(context).size.height / 2 - 100,
               child: Container(
-                width: 2,
-                height: 50,
-                color: Colors.red,
+                width: 4,
+                height: 44,
+                color: Colors.indigoAccent,
               ),
             ),
           ],
