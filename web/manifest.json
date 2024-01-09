@@ -1,6 +1,11 @@
 {
+<<<<<<< Updated upstream
     "name": "widgetest",
     "short_name": "widgetest",
+=======
+    "name": "animated_scrollable_timeline",
+    "short_name": "animated_scrollable_timeline",
+>>>>>>> Stashed changes
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

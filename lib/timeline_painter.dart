@@ -79,7 +79,7 @@ class TimelinePainter extends CustomPainter {
           path,
           size,
           Offset(
-            i * (ratioGap + ratioWidth) - (ratioWidth + ratioGap) * value,
+            i * (ratioGap + ratioWidth) - value,
             size.height / 2,
           ),
         );
@@ -89,14 +89,14 @@ class TimelinePainter extends CustomPainter {
           path,
           size,
           Offset(
-            i * (ratioGap + ratioWidth) - (ratioWidth + ratioGap) * value,
+            i * (ratioGap + ratioWidth) - value,
             size.height / 2,
           ),
         );
         drawTime(
           canvas,
           Offset(
-            i * (ratioGap + ratioWidth) - (ratioWidth + ratioGap) * value,
+            i * (ratioGap + ratioWidth) - value,
             size.height / 2,
           ),
           size,
@@ -128,14 +128,14 @@ class TimelinePainter extends CustomPainter {
           path,
           size,
           Offset(
-            -(ratioWidth + ratioGap) * i - (ratioWidth + ratioGap) * value,
+            -(ratioWidth + ratioGap) * i - value,
             size.height / 2,
           ),
         );
         drawTime(
           canvas,
           Offset(
-            -(ratioWidth + ratioGap) * i - (ratioWidth + ratioGap) * value,
+            -(ratioWidth + ratioGap) * i - value,
             size.height / 2,
           ),
           size,
@@ -147,7 +147,7 @@ class TimelinePainter extends CustomPainter {
           path,
           size,
           Offset(
-            -(ratioGap + ratioWidth) * i - (ratioWidth + ratioGap) * value,
+            -(ratioGap + ratioWidth) * i - value,
             size.height / 2,
           ),
         );
