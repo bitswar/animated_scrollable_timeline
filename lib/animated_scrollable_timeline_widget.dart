@@ -46,7 +46,6 @@ class _AnimatedScrollableTimelineWidgetState
           setState(() {
             currentTime = DateTime.now();
           });
-          print(status);
           controller.forward();
         }
       });
