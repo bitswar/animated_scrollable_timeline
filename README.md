@@ -1,2 +1,2 @@
-# video-timeline
+# Flutter video timeline widget
 Flutter widget for displaying timeline
