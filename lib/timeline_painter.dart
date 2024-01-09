@@ -49,6 +49,7 @@ class TimelinePainter extends CustomPainter {
 
     // drawDivisions(canvas, path, size, centralDate, ratioGap, ratioWidth);
     drawPastTimeline(canvas, path, size, centralDate, ratioGap, ratioWidth);
+    drawFutureTimeline(canvas, path, size, centralDate, ratioGap, ratioWidth);
 
     // canvas.drawPath(path, linePaint);
   }
@@ -60,7 +61,7 @@ class TimelinePainter extends CustomPainter {
   }
 
 /* -------------------------------------------------------------------------- */
-  void drawDivisions(
+  void drawFutureTimeline(
     Canvas canvas,
     Path path,
     Size size,
@@ -68,17 +69,17 @@ class TimelinePainter extends CustomPainter {
     double ratioGap,
     double ratioWidth,
   ) {
-    double width = 0;
+    double futureHalfWidth = 0;
     int i = 0;
 
-    while (width <= size.width * 1.2) {
+    while (futureHalfWidth <= size.width) {
       if (centralDate.second % dividersAmount != 0) {
         drawSmallDivision(
           canvas,
           path,
           size,
           Offset(
-            i * (ratioGap + ratioWidth) - size.width ~/ 2,
+            i * (ratioGap + ratioWidth) - (ratioWidth + ratioGap) * value,
             size.height / 2,
           ),
         );
@@ -88,22 +89,22 @@ class TimelinePainter extends CustomPainter {
           path,
           size,
           Offset(
-            i * (ratioGap + ratioWidth) - size.width ~/ 2,
+            i * (ratioGap + ratioWidth) - (ratioWidth + ratioGap) * value,
             size.height / 2,
           ),
         );
         drawTime(
           canvas,
           Offset(
-            i * (ratioGap + ratioWidth) - size.width ~/ 2,
+            i * (ratioGap + ratioWidth) - (ratioWidth + ratioGap) * value,
             size.height / 2,
           ),
           size,
           centralDate,
         );
       }
+      futureHalfWidth += ratioGap + ratioWidth;
       centralDate = centralDate.add(const Duration(seconds: 1));
-      width += ratioGap + ratioWidth;
       i++;
     }
   }
@@ -152,7 +153,7 @@ class TimelinePainter extends CustomPainter {
         );
       }
       pastHalfWidth -= (ratioGap + ratioWidth);
-      centralDate = centralDate.add(const Duration(seconds: 1));
+      centralDate = centralDate.add(const Duration(seconds: -1));
       i++;
     }
   }
