@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' as intl;
 
 class TimelinePainter extends CustomPainter {
 /* ------------------------------ Dependencies ------------------------------ */
-  static const TextStyle timeStyle = TextStyle(
+  static const TextStyle pastStyle = TextStyle(
     color: Colors.indigoAccent,
+    fontSize: 12,
+    fontWeight: FontWeight.w700,
+  );
+  static const TextStyle futureStyle = TextStyle(
+    color: Colors.grey,
     fontSize: 12,
     fontWeight: FontWeight.w700,
   );
@@ -41,7 +47,7 @@ class TimelinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final Offset startingPoint = Offset(0, (size.height / 2));
-    final Offset endingPoint = Offset(size.width * 1.2, size.height / 2);
+    final Offset endingPoint = Offset(size.width / 2, size.height / 2);
     linePaint.strokeWidth = dividerWidth;
 
     var path = Path();
@@ -116,6 +122,7 @@ class TimelinePainter extends CustomPainter {
           ),
           size,
           centralDate,
+          true,
         );
       } else {
         _drawSmallDivision(
@@ -126,6 +133,7 @@ class TimelinePainter extends CustomPainter {
             direction.multiptier * (ratioGap + ratioWidth) * i - value,
             size.height / 2,
           ),
+          linePaint,
         );
       }
       centralDate = centralDate.add(duration);
@@ -133,32 +141,48 @@ class TimelinePainter extends CustomPainter {
   }
 
 /* -------------------------------------------------------------------------- */
-  void _drawSmallDivision(
+  void drawSmallDivision(
+    Canvas canvas,
+    Path path,
+    Size size,
+    Offset position,
+    Paint paint,
+  ) {
+  void drawSmallDivision(
       Canvas canvas, Path path, Size size, Offset position) {
     path.moveTo(position.dx, size.height / 2 - 4);
     path.lineTo(position.dx, size.height / 2 - smallDivisionHeight - 4);
-    canvas.drawPath(path, linePaint);
+    canvas.drawPath(path, paint);
   }
 
 /* -------------------------------------------------------------------------- */
-  void _drawLargeDivision(
+  void drawLargeDivision(
+    Canvas canvas,
+    Path path,
+    Size size,
+    Offset position,
+    Paint paint,
+  ) {
+  void drawLargeDivision(
       Canvas canvas, Path path, Size size, Offset position) {
     path.moveTo(position.dx, size.height / 2);
     path.lineTo(position.dx, size.height / 2 - largeDivisionHeight);
-    canvas.drawPath(path, linePaint);
+    canvas.drawPath(path, paint);
   }
 
 /* -------------------------------------------------------------------------- */
-  void _drawTime(
+  void drawTime(
     Canvas canvas,
     Offset position,
     Size size,
     DateTime currentTime,
+    bool isPast,
   ) {
+    String formattedDate = intl.DateFormat('hh:mm:ss').format(currentTime);
+
     var timeSpan = TextSpan(
-      text:
-          '${currentTime.hour.toString()}:${currentTime.minute.toString()}:${currentTime.second.toString()}',
-      style: timeStyle,
+      text: formattedDate,
+      style: isPast ? pastStyle : futureStyle,
     );
 
     TextPainter textPainter = TextPainter(
