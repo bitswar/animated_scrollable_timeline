@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' as intl;
 
 class TimelinePainter extends CustomPainter {
 /* ------------------------------ Dependencies ------------------------------ */
@@ -52,11 +53,8 @@ class TimelinePainter extends CustomPainter {
     canvas.drawLine(startingPoint, endingPoint, linePaint);
     canvas.translate(size.width / 2, 0);
 
-    // drawDivisions(canvas, path, size, centralDate, ratioGap, ratioWidth);
     drawPastTimeline(canvas, path, size, centralDate, ratioGap, ratioWidth);
     drawFutureTimeline(canvas, path, size, centralDate, ratioGap, ratioWidth);
-
-    // canvas.drawPath(path, linePaint);
   }
 
 /* -------------------------------------------------------------------------- */
@@ -207,9 +205,10 @@ class TimelinePainter extends CustomPainter {
     DateTime currentTime,
     bool isPast,
   ) {
+    String formattedDate = intl.DateFormat('hh:mm:ss').format(currentTime);
+
     var timeSpan = TextSpan(
-      text:
-          '${currentTime.hour.toString()}:${currentTime.minute.toString()}:${currentTime.second.toString()}',
+      text: formattedDate,
       style: isPast ? pastStyle : futureStyle,
     );
 
