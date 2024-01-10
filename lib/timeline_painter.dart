@@ -16,7 +16,9 @@ class TimelinePainter extends CustomPainter {
   final double value;
   final Duration gapDuration;
   DateTime centralDate;
-
+/* -------------------------------------------------------------------------- */
+  double get ratioGap => divisionGap / devicePixelRatio;
+  double get ratioWidth => dividerWidth / devicePixelRatio;
 /* -------------------------------- Painters -------------------------------- */
   var linePaint = Paint()
     ..color = Colors.indigoAccent
@@ -38,8 +40,6 @@ class TimelinePainter extends CustomPainter {
 /* -------------------------------------------------------------------------- */
   @override
   void paint(Canvas canvas, Size size) {
-    final double ratioGap = divisionGap / devicePixelRatio;
-    final double ratioWidth = dividerWidth / devicePixelRatio;
     final Offset startingPoint = Offset(0, (size.height / 2));
     final Offset endingPoint = Offset(size.width * 1.2, size.height / 2);
     linePaint.strokeWidth = dividerWidth;
@@ -54,8 +54,6 @@ class TimelinePainter extends CustomPainter {
       path,
       size,
       centralDate,
-      ratioGap,
-      ratioWidth,
     );
     drawer(size.width, _DrawDirection.future);
     drawer(size.width / 2, _DrawDirection.past);
@@ -73,8 +71,6 @@ class TimelinePainter extends CustomPainter {
     Path path,
     Size size,
     DateTime centralDate,
-    double ratioGap,
-    double ratioWidth,
   ) {
     return (double drawLength, _DrawDirection direction) {
       _drawTimelinePart(
@@ -82,8 +78,6 @@ class TimelinePainter extends CustomPainter {
         path,
         size,
         centralDate,
-        ratioGap,
-        ratioWidth,
         drawLength,
         direction,
       );
@@ -96,8 +90,6 @@ class TimelinePainter extends CustomPainter {
     Path path,
     Size size,
     DateTime centralDate,
-    double ratioGap,
-    double ratioWidth,
     double drawLength,
     _DrawDirection direction,
   ) {
