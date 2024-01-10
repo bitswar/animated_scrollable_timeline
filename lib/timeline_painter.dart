@@ -14,6 +14,7 @@ class TimelinePainter extends CustomPainter {
   final double dividerWidth;
   final double devicePixelRatio;
   final double value;
+  final Duration gapDuration;
   DateTime centralDate;
 
 /* -------------------------------- Painters -------------------------------- */
@@ -32,6 +33,7 @@ class TimelinePainter extends CustomPainter {
     required this.divisionGap,
     required this.dividerWidth,
     required this.value,
+    required this.gapDuration,
   });
 /* -------------------------------------------------------------------------- */
   @override
@@ -104,7 +106,7 @@ class TimelinePainter extends CustomPainter {
         );
       }
       futureHalfWidth += ratioGap + ratioWidth;
-      centralDate = centralDate.add(const Duration(seconds: 1));
+      centralDate = centralDate.add(gapDuration);
       i++;
     }
   }
@@ -153,7 +155,7 @@ class TimelinePainter extends CustomPainter {
         );
       }
       pastHalfWidth -= (ratioGap + ratioWidth);
-      centralDate = centralDate.add(const Duration(seconds: -1));
+      centralDate = centralDate.add(-gapDuration);
       i++;
     }
   }

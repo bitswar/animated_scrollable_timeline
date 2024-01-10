@@ -10,12 +10,15 @@ class AnimatedScrollableTimelineWidget extends StatefulWidget {
   final double dividerWidth;
 /* -------------------------------------------------------------------------- */
   final int dividersAmount;
+/* -------------------------------------------------------------------------- */
+  final Duration gapDuration;
 /* ------------------------------- Constructor ------------------------------ */
   const AnimatedScrollableTimelineWidget({
     super.key,
     this.dividerWidth = 1,
     this.divisionGap = 21,
     this.dividersAmount = 10,
+    this.gapDuration = const Duration(seconds: 1),
   });
 /* -------------------------------------------------------------------------- */
   @override
@@ -33,39 +36,28 @@ class _AnimatedScrollableTimelineWidgetState
 /* -------------------------------------------------------------------------- */
   late AnimationController controller;
 /* -------------------------------------------------------------------------- */
+  double get ars => widget.dividerWidth + widget.divisionGap;
+/* -------------------------------------------------------------------------- */
   DateTime currentTime = DateTime.now();
-  Duration timeOffset = const Duration(seconds: 0);
+  Duration timeOffset = Duration.zero;
   DateTime startDragTime = DateTime.now();
   double animValue = 0;
-  int animOffset = 0;
-  bool animHand = false;
+  double animOffset = 0;
+  bool animHand = true;
+  double previousAnimationValue = 0;
 /* -------------------------------------------------------------------------- */
   @override
   void initState() {
+    super.initState();
     controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 1),
+      duration: widget.gapDuration,
     )
-      ..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          controller.reset();
-          setState(() {
-            currentTime = DateTime.now().subtract(timeOffset);
-          });
-          debugPrint(status.toString());
-          if (animValue == 0 && !animHand) {
-            controller.forward();
-          }
-        }
-      })
-      ..addListener(() {});
-    animation = Tween<double>(
-      begin: 0,
-      end: widget.dividerWidth + widget.divisionGap,
-    ).animate(controller);
+      ..addStatusListener(animationStatusListener)
+      ..addListener(animationListener);
 
+    animation = Tween<double>(begin: 0, end: ars).animate(controller);
     controller.forward();
-    super.initState();
   }
 
   /* -------------------------------------------------------------------------- */
@@ -98,6 +90,7 @@ class _AnimatedScrollableTimelineWidgetState
                     dividersAmount: widget.dividersAmount,
                     dividerWidth: widget.dividerWidth,
                     divisionGap: widget.divisionGap,
+                    gapDuration: widget.gapDuration,
                     value: animHand ? animValue : animation.value,
                   ),
                 ),
@@ -109,41 +102,77 @@ class _AnimatedScrollableTimelineWidgetState
     );
   }
 
+  void animationListener() {}
+
+  void animationStatusListener(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      controller.reset();
+      setState(() {
+        if (animValue != 0) {
+          timeOffset = computeFinalOffset();
+        }
+        currentTime = currentTime.add(widget.gapDuration).subtract(timeOffset);
+        resetManualAnimation();
+      });
+      if (animValue == 0 && !animHand) {
+        controller.forward();
+      }
+    }
+  }
+
+  Duration computeFinalOffset() {
+    if (animValue > 0) {
+      return timeOffset - widget.gapDuration;
+    }
+    return timeOffset + widget.gapDuration;
+  }
+
   void stopAnimate(DragStartDetails details) {
-    animHand = true;
-    startDragTime = DateTime.now();
     controller.stop();
+    startDragTime = DateTime.now();
+    animHand = true;
   }
 
   void startAnimate(DragEndDetails details) {
-    final addSeconds = animOffset ~/ 20;
-    final difference = startDragTime.difference(DateTime.now());
-    timeOffset = Duration(
-      seconds: addSeconds + timeOffset.inSeconds - difference.inSeconds,
-    );
-    print("TimeOffset: $timeOffset");
+    final gapsDifference = animOffset / ars;
+    final millisecondsDiff =
+        (gapsDifference * widget.gapDuration.inMilliseconds).toInt();
 
-    animHand = false;
-    animValue = 0;
-    animOffset = 0;
-    controller.animateBack(0);
+    if (millisecondsDiff < 0) {
+      // Forward
+      timeOffset = Duration(
+        milliseconds: timeOffset.inMilliseconds - millisecondsDiff.abs(),
+      );
+    } else {
+      // Backward
+      timeOffset = Duration(
+        milliseconds: (timeOffset.inMilliseconds - millisecondsDiff).abs(),
+      );
+    }
+
     controller.forward();
+  }
+
+  void resetManualAnimation() {
+    animOffset = 0;
+    animValue = 0;
+    previousAnimationValue = 0;
+    timeOffset = Duration.zero;
+    animHand = false;
   }
 
   void horizontalDragHandle(DragUpdateDetails details) {
     final offset = details.delta;
-    animOffset += offset.dx.toInt();
+    animOffset += offset.dx;
     setState(() {
       changeAnimValue(offset.dx);
     });
   }
 
   void changeAnimValue(double value) {
-    print(value);
     setState(() {
       animValue -= value;
     });
-    print(animValue);
   }
 /* -------------------------------------------------------------------------- */
 }
