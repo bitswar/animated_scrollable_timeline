@@ -10,12 +10,24 @@ class AnimatedScrollableTimelineWidget extends StatefulWidget {
   final double dividerWidth;
 /* -------------------------------------------------------------------------- */
   final int dividersAmount;
+/* -------------------------------------------------------------------------- */
+  final Duration gapDuration;
+/* -------------------------------------------------------------------------- */
+  final bool scrollRight;
+/* -------------------------------------------------------------------------- */
+  final bool scrollLeft;
+/* -------------------------------------------------------------------------- */
+  final DateTime Function()? limitDateTime;
 /* ------------------------------- Constructor ------------------------------ */
   const AnimatedScrollableTimelineWidget({
     super.key,
     this.dividerWidth = 1,
     this.divisionGap = 21,
     this.dividersAmount = 10,
+    this.gapDuration = const Duration(seconds: 1),
+    this.scrollRight = true,
+    this.scrollLeft = true,
+    this.limitDateTime,
   });
 /* -------------------------------------------------------------------------- */
   @override
@@ -33,29 +45,30 @@ class _AnimatedScrollableTimelineWidgetState
 /* -------------------------------------------------------------------------- */
   late AnimationController controller;
 /* -------------------------------------------------------------------------- */
+  double get ars => widget.dividerWidth + widget.divisionGap;
+/* -------------------------------------------------------------------------- */
   DateTime currentTime = DateTime.now();
+  DateTime startDragTime = DateTime.now();
+  DateTime? limitTime;
+  Duration timeOffset = Duration.zero;
+  double animValue = 0;
+  double animOffset = 0;
+  bool animHand = true;
+  double previousAnimationValue = 0;
 /* -------------------------------------------------------------------------- */
   @override
   void initState() {
+    super.initState();
+    limitTime = widget.limitDateTime?.call();
     controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 1),
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          controller.reset();
-          setState(() {
-            currentTime = DateTime.now();
-          });
-          controller.forward();
-        }
-      });
-    animation = Tween<double>(
-      begin: 0,
-      end: widget.dividerWidth + widget.divisionGap,
-    ).animate(controller);
+      duration: widget.gapDuration,
+    )
+      ..addStatusListener(animationStatusListener)
+      ..addListener(animationListener);
 
+    animation = Tween<double>(begin: 0, end: ars).animate(controller);
     controller.forward();
-    super.initState();
   }
 
   /* -------------------------------------------------------------------------- */
@@ -75,16 +88,22 @@ class _AnimatedScrollableTimelineWidgetState
           child: AnimatedBuilder(
             animation: animation,
             builder: (context, child) {
-              return CustomPaint(
-                painter: TimelinePainter(
-                  largeDivisionHeight: 36,
-                  smallDivisionHeight: 12,
-                  devicePixelRatio: pixelRatio,
-                  centralDate: currentTime,
-                  dividersAmount: widget.dividersAmount,
-                  dividerWidth: widget.dividerWidth,
-                  divisionGap: widget.divisionGap,
-                  value: controller.value,
+              return GestureDetector(
+                onHorizontalDragUpdate: horizontalDragHandle,
+                onHorizontalDragStart: stopAnimate,
+                onHorizontalDragEnd: startAnimate,
+                child: CustomPaint(
+                  painter: TimelinePainter(
+                    largeDivisionHeight: 36,
+                    smallDivisionHeight: 12,
+                    devicePixelRatio: pixelRatio,
+                    centralDate: currentTime,
+                    dividersAmount: widget.dividersAmount,
+                    dividerWidth: widget.dividerWidth,
+                    divisionGap: widget.divisionGap,
+                    gapDuration: widget.gapDuration,
+                    value: animHand ? animValue : animation.value,
+                  ),
                 ),
               );
             },
@@ -94,5 +113,118 @@ class _AnimatedScrollableTimelineWidgetState
     );
   }
 
+  void animationListener() {}
+
+  void animationStatusListener(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      controller.reset();
+      setState(() {
+        if (animValue != 0) {
+          timeOffset = computeFinalOffset();
+        }
+        currentTime = currentTime.add(widget.gapDuration).subtract(timeOffset);
+        limitTime = widget.limitDateTime?.call();
+        resetManualAnimation();
+      });
+      if (animValue == 0 && !animHand) {
+        controller.forward();
+      }
+    }
+  }
+
+  DateTime getNewCurrentTime(Duration offset) {
+    return currentTime.add(widget.gapDuration).subtract(offset);
+  }
+
+  Duration computeFinalOffset() {
+    if (animValue > 0) {
+      return timeOffset - widget.gapDuration;
+    }
+    return timeOffset + widget.gapDuration;
+  }
+
+  void stopAnimate(DragStartDetails details) {
+    controller.stop();
+    startDragTime = DateTime.now();
+    animHand = true;
+  }
+
+  void startAnimate(DragEndDetails details) {
+    final millisecondsDiff = getMillisecondsDiff(animOffset);
+
+    timeOffset = getNewOffset(millisecondsDiff);
+    controller.forward();
+  }
+
+  int getMillisecondsDiff(double animationOffset) {
+    final gapsDifference = animationOffset / ars;
+    return (gapsDifference * widget.gapDuration.inMilliseconds).toInt();
+  }
+
+  Duration getNewOffset(int millisecondsDiff) {
+    if (millisecondsDiff < 0) {
+      // Forward
+      return Duration(
+        milliseconds: timeOffset.inMilliseconds - millisecondsDiff.abs(),
+      );
+    } else {
+      // Backward
+      return Duration(
+        milliseconds: (timeOffset.inMilliseconds - millisecondsDiff).abs(),
+      );
+    }
+  }
+
+  void resetManualAnimation() {
+    animOffset = 0;
+    animValue = 0;
+    previousAnimationValue = 0;
+    timeOffset = Duration.zero;
+    animHand = false;
+  }
+
+  void horizontalDragHandle(DragUpdateDetails details) {
+    final offset = details.delta;
+
+    if (!widget.scrollRight && offset.dx < 0) {
+      return;
+    }
+
+    if (!widget.scrollLeft && offset.dx > 0) {
+      return;
+    }
+
+    if (!canScrollLimitCheck(animOffset + offset.dx)) {
+      return;
+    }
+
+    animOffset += offset.dx;
+    setState(() {
+      changeAnimValue(offset.dx);
+    });
+  }
+
+  bool canScrollLimitCheck(double offset) {
+    final millisecondsDiff = getMillisecondsDiff(offset);
+    final newOffset = getNewOffset(millisecondsDiff);
+
+    final newTime = getNewCurrentTime(newOffset);
+
+    if (limitTime == null) {
+      return true;
+    }
+
+    if (newTime.compareTo(limitTime!) < 1) {
+      return true;
+    }
+
+    return false;
+  }
+
+  void changeAnimValue(double value) {
+    setState(() {
+      animValue -= value;
+    });
+  }
 /* -------------------------------------------------------------------------- */
 }
