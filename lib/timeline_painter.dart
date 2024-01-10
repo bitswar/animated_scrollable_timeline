@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' as intl;
 
 class TimelinePainter extends CustomPainter {
 /* ------------------------------ Dependencies ------------------------------ */
-  static const TextStyle timeStyle = TextStyle(
+  static const TextStyle pastStyle = TextStyle(
     color: Colors.indigoAccent,
+    fontSize: 12,
+    fontWeight: FontWeight.w700,
+  );
+  static const TextStyle futureStyle = TextStyle(
+    color: Colors.grey,
     fontSize: 12,
     fontWeight: FontWeight.w700,
   );
@@ -39,7 +45,7 @@ class TimelinePainter extends CustomPainter {
     final double ratioGap = divisionGap / devicePixelRatio;
     final double ratioWidth = dividerWidth / devicePixelRatio;
     final Offset startingPoint = Offset(0, (size.height / 2));
-    final Offset endingPoint = Offset(size.width * 1.2, size.height / 2);
+    final Offset endingPoint = Offset(size.width / 2, size.height / 2);
     linePaint.strokeWidth = dividerWidth;
 
     var path = Path();
@@ -47,11 +53,8 @@ class TimelinePainter extends CustomPainter {
     canvas.drawLine(startingPoint, endingPoint, linePaint);
     canvas.translate(size.width / 2, 0);
 
-    // drawDivisions(canvas, path, size, centralDate, ratioGap, ratioWidth);
     drawPastTimeline(canvas, path, size, centralDate, ratioGap, ratioWidth);
     drawFutureTimeline(canvas, path, size, centralDate, ratioGap, ratioWidth);
-
-    // canvas.drawPath(path, linePaint);
   }
 
 /* -------------------------------------------------------------------------- */
@@ -69,6 +72,11 @@ class TimelinePainter extends CustomPainter {
     double ratioGap,
     double ratioWidth,
   ) {
+    var futureLinePaint = Paint()
+      ..color = Colors.grey
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
     double futureHalfWidth = 0;
     int i = 0;
 
@@ -82,6 +90,7 @@ class TimelinePainter extends CustomPainter {
             i * (ratioGap + ratioWidth) - (ratioWidth + ratioGap) * value,
             size.height / 2,
           ),
+          futureLinePaint,
         );
       } else {
         drawLargeDivision(
@@ -92,6 +101,7 @@ class TimelinePainter extends CustomPainter {
             i * (ratioGap + ratioWidth) - (ratioWidth + ratioGap) * value,
             size.height / 2,
           ),
+          futureLinePaint,
         );
         drawTime(
           canvas,
@@ -101,6 +111,7 @@ class TimelinePainter extends CustomPainter {
           ),
           size,
           centralDate,
+          false,
         );
       }
       futureHalfWidth += ratioGap + ratioWidth;
@@ -124,14 +135,14 @@ class TimelinePainter extends CustomPainter {
     while (pastHalfWidth >= 0) {
       if (centralDate.second % dividersAmount == 0) {
         drawLargeDivision(
-          canvas,
-          path,
-          size,
-          Offset(
-            -(ratioWidth + ratioGap) * i - (ratioWidth + ratioGap) * value,
-            size.height / 2,
-          ),
-        );
+            canvas,
+            path,
+            size,
+            Offset(
+              -(ratioWidth + ratioGap) * i - (ratioWidth + ratioGap) * value,
+              size.height / 2,
+            ),
+            linePaint);
         drawTime(
           canvas,
           Offset(
@@ -140,6 +151,7 @@ class TimelinePainter extends CustomPainter {
           ),
           size,
           centralDate,
+          true,
         );
       } else {
         drawSmallDivision(
@@ -150,6 +162,7 @@ class TimelinePainter extends CustomPainter {
             -(ratioGap + ratioWidth) * i - (ratioWidth + ratioGap) * value,
             size.height / 2,
           ),
+          linePaint,
         );
       }
       pastHalfWidth -= (ratioGap + ratioWidth);
@@ -159,17 +172,29 @@ class TimelinePainter extends CustomPainter {
   }
 
 /* -------------------------------------------------------------------------- */
-  void drawSmallDivision(Canvas canvas, Path path, Size size, Offset position) {
+  void drawSmallDivision(
+    Canvas canvas,
+    Path path,
+    Size size,
+    Offset position,
+    Paint paint,
+  ) {
     path.moveTo(position.dx, size.height / 2 - 4);
     path.lineTo(position.dx, size.height / 2 - smallDivisionHeight - 4);
-    canvas.drawPath(path, linePaint);
+    canvas.drawPath(path, paint);
   }
 
 /* -------------------------------------------------------------------------- */
-  void drawLargeDivision(Canvas canvas, Path path, Size size, Offset position) {
+  void drawLargeDivision(
+    Canvas canvas,
+    Path path,
+    Size size,
+    Offset position,
+    Paint paint,
+  ) {
     path.moveTo(position.dx, size.height / 2);
     path.lineTo(position.dx, size.height / 2 - largeDivisionHeight);
-    canvas.drawPath(path, linePaint);
+    canvas.drawPath(path, paint);
   }
 
 /* -------------------------------------------------------------------------- */
@@ -178,11 +203,13 @@ class TimelinePainter extends CustomPainter {
     Offset position,
     Size size,
     DateTime currentTime,
+    bool isPast,
   ) {
+    String formattedDate = intl.DateFormat('hh:mm:ss').format(currentTime);
+
     var timeSpan = TextSpan(
-      text:
-          '${currentTime.hour.toString()}:${currentTime.minute.toString()}:${currentTime.second.toString()}',
-      style: timeStyle,
+      text: formattedDate,
+      style: isPast ? pastStyle : futureStyle,
     );
 
     TextPainter textPainter = TextPainter(
