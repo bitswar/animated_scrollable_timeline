@@ -22,7 +22,9 @@ class MyApp extends StatelessWidget {
         ),
         body: Stack(
           children: [
-            const AnimatedScrollableTimelineWidget(),
+            AnimatedScrollableTimelineWidget(
+              limitDateTime: () => DateTime.now(),
+            ),
             Center(
               child: Container(
                 width: 2,

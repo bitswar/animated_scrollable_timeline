@@ -12,6 +12,12 @@ class AnimatedScrollableTimelineWidget extends StatefulWidget {
   final int dividersAmount;
 /* -------------------------------------------------------------------------- */
   final Duration gapDuration;
+/* -------------------------------------------------------------------------- */
+  final bool scrollRight;
+/* -------------------------------------------------------------------------- */
+  final bool scrollLeft;
+/* -------------------------------------------------------------------------- */
+  final DateTime Function()? limitDateTime;
 /* ------------------------------- Constructor ------------------------------ */
   const AnimatedScrollableTimelineWidget({
     super.key,
@@ -19,6 +25,9 @@ class AnimatedScrollableTimelineWidget extends StatefulWidget {
     this.divisionGap = 21,
     this.dividersAmount = 10,
     this.gapDuration = const Duration(seconds: 1),
+    this.scrollRight = true,
+    this.scrollLeft = true,
+    this.limitDateTime,
   });
 /* -------------------------------------------------------------------------- */
   @override
@@ -39,8 +48,9 @@ class _AnimatedScrollableTimelineWidgetState
   double get ars => widget.dividerWidth + widget.divisionGap;
 /* -------------------------------------------------------------------------- */
   DateTime currentTime = DateTime.now();
-  Duration timeOffset = Duration.zero;
   DateTime startDragTime = DateTime.now();
+  DateTime? limitTime;
+  Duration timeOffset = Duration.zero;
   double animValue = 0;
   double animOffset = 0;
   bool animHand = true;
@@ -49,6 +59,7 @@ class _AnimatedScrollableTimelineWidgetState
   @override
   void initState() {
     super.initState();
+    limitTime = widget.limitDateTime?.call();
     controller = AnimationController(
       vsync: this,
       duration: widget.gapDuration,
@@ -112,12 +123,17 @@ class _AnimatedScrollableTimelineWidgetState
           timeOffset = computeFinalOffset();
         }
         currentTime = currentTime.add(widget.gapDuration).subtract(timeOffset);
+        limitTime = widget.limitDateTime?.call();
         resetManualAnimation();
       });
       if (animValue == 0 && !animHand) {
         controller.forward();
       }
     }
+  }
+
+  DateTime getNewCurrentTime(Duration offset) {
+    return currentTime.add(widget.gapDuration).subtract(offset);
   }
 
   Duration computeFinalOffset() {
@@ -134,23 +150,29 @@ class _AnimatedScrollableTimelineWidgetState
   }
 
   void startAnimate(DragEndDetails details) {
-    final gapsDifference = animOffset / ars;
-    final millisecondsDiff =
-        (gapsDifference * widget.gapDuration.inMilliseconds).toInt();
+    final millisecondsDiff = getMillisecondsDiff(animOffset);
 
+    timeOffset = getNewOffset(millisecondsDiff);
+    controller.forward();
+  }
+
+  int getMillisecondsDiff(double animationOffset) {
+    final gapsDifference = animationOffset / ars;
+    return (gapsDifference * widget.gapDuration.inMilliseconds).toInt();
+  }
+
+  Duration getNewOffset(int millisecondsDiff) {
     if (millisecondsDiff < 0) {
       // Forward
-      timeOffset = Duration(
+      return Duration(
         milliseconds: timeOffset.inMilliseconds - millisecondsDiff.abs(),
       );
     } else {
       // Backward
-      timeOffset = Duration(
+      return Duration(
         milliseconds: (timeOffset.inMilliseconds - millisecondsDiff).abs(),
       );
     }
-
-    controller.forward();
   }
 
   void resetManualAnimation() {
@@ -163,10 +185,40 @@ class _AnimatedScrollableTimelineWidgetState
 
   void horizontalDragHandle(DragUpdateDetails details) {
     final offset = details.delta;
+
+    if (!widget.scrollRight && offset.dx < 0) {
+      return;
+    }
+
+    if (!widget.scrollLeft && offset.dx > 0) {
+      return;
+    }
+
+    if (!canScrollLimitCheck(animOffset + offset.dx)) {
+      return;
+    }
+
     animOffset += offset.dx;
     setState(() {
       changeAnimValue(offset.dx);
     });
+  }
+
+  bool canScrollLimitCheck(double offset) {
+    final millisecondsDiff = getMillisecondsDiff(offset);
+    final newOffset = getNewOffset(millisecondsDiff);
+
+    final newTime = getNewCurrentTime(newOffset);
+
+    if (limitTime == null) {
+      return true;
+    }
+
+    if (newTime.compareTo(limitTime!) < 1) {
+      return true;
+    }
+
+    return false;
   }
 
   void changeAnimValue(double value) {
