@@ -26,11 +26,15 @@ class TimelinePainter extends CustomPainter {
   double get ratioGap => divisionGap / devicePixelRatio;
   double get ratioWidth => dividerWidth / devicePixelRatio;
 /* -------------------------------- Painters -------------------------------- */
-  var linePaint = Paint()
+  final linePaint = Paint()
     ..color = Colors.indigoAccent
     ..strokeCap = StrokeCap.round
     ..style = PaintingStyle.stroke;
 
+  final futureLinePaint = Paint()
+    ..color = Colors.grey
+    ..strokeCap = StrokeCap.round
+    ..style = PaintingStyle.stroke;
 /* ------------------------------- Constructor ------------------------------ */
   TimelinePainter({
     required this.smallDivisionHeight,
@@ -113,6 +117,7 @@ class TimelinePainter extends CustomPainter {
             direction.multiptier * (ratioWidth + ratioGap) * i - value,
             size.height / 2,
           ),
+          futureLinePaint,
         );
         _drawTime(
           canvas,
@@ -141,37 +146,33 @@ class TimelinePainter extends CustomPainter {
   }
 
 /* -------------------------------------------------------------------------- */
-  void drawSmallDivision(
+  void _drawSmallDivision(
     Canvas canvas,
     Path path,
     Size size,
     Offset position,
     Paint paint,
   ) {
-  void drawSmallDivision(
-      Canvas canvas, Path path, Size size, Offset position) {
     path.moveTo(position.dx, size.height / 2 - 4);
     path.lineTo(position.dx, size.height / 2 - smallDivisionHeight - 4);
     canvas.drawPath(path, paint);
   }
 
 /* -------------------------------------------------------------------------- */
-  void drawLargeDivision(
+  void _drawLargeDivision(
     Canvas canvas,
     Path path,
     Size size,
     Offset position,
     Paint paint,
   ) {
-  void drawLargeDivision(
-      Canvas canvas, Path path, Size size, Offset position) {
     path.moveTo(position.dx, size.height / 2);
     path.lineTo(position.dx, size.height / 2 - largeDivisionHeight);
     canvas.drawPath(path, paint);
   }
 
 /* -------------------------------------------------------------------------- */
-  void drawTime(
+  void _drawTime(
     Canvas canvas,
     Offset position,
     Size size,
@@ -201,6 +202,7 @@ class TimelinePainter extends CustomPainter {
 /* -------------------------------------------------------------------------- */
 }
 
+/* -------------------------------------------------------------------------- */
 enum _DrawDirection {
   future(1),
   past(-1);
@@ -208,3 +210,4 @@ enum _DrawDirection {
   final int multiptier;
   const _DrawDirection(this.multiptier);
 }
+/* -------------------------------------------------------------------------- */
