@@ -49,11 +49,16 @@ class TimelinePainter extends CustomPainter {
     canvas.drawLine(startingPoint, endingPoint, linePaint);
     canvas.translate(size.width / 2, 0);
 
-    // drawDivisions(canvas, path, size, centralDate, ratioGap, ratioWidth);
-    drawPastTimeline(canvas, path, size, centralDate, ratioGap, ratioWidth);
-    drawFutureTimeline(canvas, path, size, centralDate, ratioGap, ratioWidth);
-
-    // canvas.drawPath(path, linePaint);
+    final drawer = _getDrawerFunction(
+      canvas,
+      path,
+      size,
+      centralDate,
+      ratioGap,
+      ratioWidth,
+    );
+    drawer(size.width, _DrawDirection.future);
+    drawer(size.width / 2, _DrawDirection.past);
   }
 
 /* -------------------------------------------------------------------------- */
@@ -63,7 +68,7 @@ class TimelinePainter extends CustomPainter {
   }
 
 /* -------------------------------------------------------------------------- */
-  void drawFutureTimeline(
+  Function(double, _DrawDirection) _getDrawerFunction(
     Canvas canvas,
     Path path,
     Size size,
@@ -71,111 +76,88 @@ class TimelinePainter extends CustomPainter {
     double ratioGap,
     double ratioWidth,
   ) {
-    double futureHalfWidth = 0;
+    return (double drawLength, _DrawDirection direction) {
+      _drawTimelinePart(
+        canvas,
+        path,
+        size,
+        centralDate,
+        ratioGap,
+        ratioWidth,
+        drawLength,
+        direction,
+      );
+    };
+  }
+
+/* -------------------------------------------------------------------------- */
+  void _drawTimelinePart(
+    Canvas canvas,
+    Path path,
+    Size size,
+    DateTime centralDate,
+    double ratioGap,
+    double ratioWidth,
+    double drawLength,
+    _DrawDirection direction,
+  ) {
+    final duration =
+        direction == _DrawDirection.future ? gapDuration : -gapDuration;
     int i = 0;
 
-    while (futureHalfWidth <= size.width) {
-      if (centralDate.second % dividersAmount != 0) {
-        drawSmallDivision(
-          canvas,
-          path,
-          size,
-          Offset(
-            i * (ratioGap + ratioWidth) - value,
-            size.height / 2,
-          ),
-        );
-      } else {
-        drawLargeDivision(
-          canvas,
-          path,
-          size,
-          Offset(
-            i * (ratioGap + ratioWidth) - value,
-            size.height / 2,
-          ),
-        );
-        drawTime(
-          canvas,
-          Offset(
-            i * (ratioGap + ratioWidth) - value,
-            size.height / 2,
-          ),
-          size,
-          centralDate,
-        );
-      }
-      futureHalfWidth += ratioGap + ratioWidth;
-      centralDate = centralDate.add(gapDuration);
-      i++;
-    }
-  }
-
-/* -------------------------------------------------------------------------- */
-  void drawPastTimeline(
-    Canvas canvas,
-    Path path,
-    Size size,
-    DateTime centralDate,
-    double ratioGap,
-    double ratioWidth,
-  ) {
-    double pastHalfWidth = size.width / 2;
-    double i = 0;
-
-    while (pastHalfWidth >= 0) {
+    for (double j = 0; j < drawLength; j += ratioGap + ratioWidth, i++) {
       if (centralDate.second % dividersAmount == 0) {
-        drawLargeDivision(
+        _drawLargeDivision(
           canvas,
           path,
           size,
           Offset(
-            -(ratioWidth + ratioGap) * i - value,
+            direction.multiptier * (ratioWidth + ratioGap) * i - value,
             size.height / 2,
           ),
         );
-        drawTime(
+        _drawTime(
           canvas,
           Offset(
-            -(ratioWidth + ratioGap) * i - value,
+            direction.multiptier * (ratioWidth + ratioGap) * i - value,
             size.height / 2,
           ),
           size,
           centralDate,
         );
       } else {
-        drawSmallDivision(
+        _drawSmallDivision(
           canvas,
           path,
           size,
           Offset(
-            -(ratioGap + ratioWidth) * i - value,
+            direction.multiptier * (ratioGap + ratioWidth) * i - value,
             size.height / 2,
           ),
         );
       }
-      pastHalfWidth -= (ratioGap + ratioWidth);
-      centralDate = centralDate.add(-gapDuration);
-      i++;
+      centralDate = centralDate.add(duration);
     }
   }
 
 /* -------------------------------------------------------------------------- */
-  void drawSmallDivision(Canvas canvas, Path path, Size size, Offset position) {
+  void _drawSmallDivision(
+      Canvas canvas, Path path, Size size, Offset position) {
     path.moveTo(position.dx, size.height / 2 - 4);
     path.lineTo(position.dx, size.height / 2 - smallDivisionHeight - 4);
     canvas.drawPath(path, linePaint);
   }
 
 /* -------------------------------------------------------------------------- */
-  void drawLargeDivision(Canvas canvas, Path path, Size size, Offset position) {
+  void _drawLargeDivision(
+      Canvas canvas, Path path, Size size, Offset position) {
     path.moveTo(position.dx, size.height / 2);
     path.lineTo(position.dx, size.height / 2 - largeDivisionHeight);
     canvas.drawPath(path, linePaint);
   }
 
 /* -------------------------------------------------------------------------- */
-  void drawTime(
+  void _drawTime(
     Canvas canvas,
     Offset position,
     Size size,
@@ -201,4 +183,12 @@ class TimelinePainter extends CustomPainter {
   }
 
 /* -------------------------------------------------------------------------- */
+}
+
+enum _DrawDirection {
+  future(1),
+  past(-1);
+
+  final int multiptier;
+  const _DrawDirection(this.multiptier);
 }
