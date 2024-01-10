@@ -22,9 +22,7 @@ class MyApp extends StatelessWidget {
         ),
         body: Stack(
           children: [
-            AnimatedScrollableTimelineWidget(
-              limitDateTime: () => DateTime.now(),
-            ),
+            const AnimatedScrollableTimelineWidget(),
             Positioned(
               left: MediaQuery.of(context).size.width / 2,
               top: MediaQuery.of(context).size.height / 2 - 100,
