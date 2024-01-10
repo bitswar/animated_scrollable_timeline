@@ -53,7 +53,9 @@ class _AnimatedScrollableTimelineWidgetState
             currentTime = DateTime.now().subtract(timeOffset);
           });
           debugPrint(status.toString());
-          controller.forward();
+          if (animValue == 0 && !animHand) {
+            controller.forward();
+          }
         }
       })
       ..addListener(() {});
@@ -124,6 +126,7 @@ class _AnimatedScrollableTimelineWidgetState
     animHand = false;
     animValue = 0;
     animOffset = 0;
+    controller.animateBack(0);
     controller.forward();
   }
 
