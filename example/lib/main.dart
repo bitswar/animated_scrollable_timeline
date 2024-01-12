@@ -1,5 +1,5 @@
+import 'package:animated_scrollable_timeline/animated_scrollable_timeline.dart';
 import 'package:flutter/material.dart';
-import 'package:animated_scrollable_timeline/animated_scrollable_timeline_widget.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,15 +24,6 @@ class MyApp extends StatelessWidget {
           children: [
             AnimatedScrollableTimelineWidget(
               limitDateTime: () => DateTime.now(),
-            ),
-            Positioned(
-              left: MediaQuery.of(context).size.width / 2,
-              top: MediaQuery.of(context).size.height / 2 - 100,
-              child: Container(
-                width: 4,
-                height: 44,
-                color: Colors.indigoAccent,
-              ),
             ),
           ],
         ),

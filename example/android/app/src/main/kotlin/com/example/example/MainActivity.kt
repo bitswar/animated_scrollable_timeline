@@ -1,4 +1,4 @@
-package com.example.animated_scrollable_timeline
+package com.example.example
 
 import io.flutter.embedding.android.FlutterActivity
 

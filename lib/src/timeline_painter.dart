@@ -13,6 +13,8 @@ class TimelinePainter extends CustomPainter {
     fontSize: 12,
     fontWeight: FontWeight.w700,
   );
+  static const double mainLineHeight = 44;
+/* -------------------------------------------------------------------------- */
   final double largeDivisionHeight;
   final double smallDivisionHeight;
   final int dividersAmount;
@@ -35,6 +37,16 @@ class TimelinePainter extends CustomPainter {
     ..color = Colors.grey
     ..strokeCap = StrokeCap.round
     ..style = PaintingStyle.stroke;
+
+  final mainLinePaint = Paint()
+    ..color = Colors.indigoAccent
+    ..strokeCap = StrokeCap.round
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 4;
+
+  final rectLinePaint = Paint()
+    ..color = Colors.indigo.withOpacity(0.15)
+    ..style = PaintingStyle.fill;
 /* ------------------------------- Constructor ------------------------------ */
   TimelinePainter({
     required this.smallDivisionHeight,
@@ -58,6 +70,18 @@ class TimelinePainter extends CustomPainter {
 
     canvas.drawLine(startingPoint, endingPoint, linePaint);
     canvas.translate(size.width / 2, 0);
+    canvas.drawLine(
+      Offset(0, size.height / 2),
+      Offset(0, size.height / 2 - mainLineHeight),
+      mainLinePaint,
+    );
+    canvas.drawRect(
+      Rect.fromPoints(
+        Offset(-size.width, size.height / 2 - mainLineHeight),
+        Offset(0, size.height / 2),
+      ),
+      rectLinePaint,
+    );
 
     final drawer = _getDrawerFunction(
       canvas,
@@ -65,8 +89,8 @@ class TimelinePainter extends CustomPainter {
       size,
       centralDate,
     );
+    drawer(size.width, _DrawDirection.past);
     drawer(size.width, _DrawDirection.future);
-    drawer(size.width / 2, _DrawDirection.past);
   }
 
 /* -------------------------------------------------------------------------- */
@@ -117,7 +141,7 @@ class TimelinePainter extends CustomPainter {
             direction.multiptier * (ratioWidth + ratioGap) * i - value,
             size.height / 2,
           ),
-          futureLinePaint,
+          direction,
         );
         _drawTime(
           canvas,
@@ -127,7 +151,7 @@ class TimelinePainter extends CustomPainter {
           ),
           size,
           centralDate,
-          true,
+          direction == _DrawDirection.past,
         );
       } else {
         _drawSmallDivision(
@@ -138,7 +162,7 @@ class TimelinePainter extends CustomPainter {
             direction.multiptier * (ratioGap + ratioWidth) * i - value,
             size.height / 2,
           ),
-          linePaint,
+          direction,
         );
       }
       centralDate = centralDate.add(duration);
@@ -151,11 +175,14 @@ class TimelinePainter extends CustomPainter {
     Path path,
     Size size,
     Offset position,
-    Paint paint,
+    _DrawDirection direction,
   ) {
     path.moveTo(position.dx, size.height / 2 - 4);
     path.lineTo(position.dx, size.height / 2 - smallDivisionHeight - 4);
-    canvas.drawPath(path, paint);
+    canvas.drawPath(
+      path,
+      direction == _DrawDirection.future ? futureLinePaint : linePaint,
+    );
   }
 
 /* -------------------------------------------------------------------------- */
@@ -164,11 +191,14 @@ class TimelinePainter extends CustomPainter {
     Path path,
     Size size,
     Offset position,
-    Paint paint,
+    _DrawDirection direction,
   ) {
     path.moveTo(position.dx, size.height / 2);
     path.lineTo(position.dx, size.height / 2 - largeDivisionHeight);
-    canvas.drawPath(path, paint);
+    canvas.drawPath(
+      path,
+      direction == _DrawDirection.future ? futureLinePaint : linePaint,
+    );
   }
 
 /* -------------------------------------------------------------------------- */
@@ -179,7 +209,7 @@ class TimelinePainter extends CustomPainter {
     DateTime currentTime,
     bool isPast,
   ) {
-    String formattedDate = intl.DateFormat('hh:mm:ss').format(currentTime);
+    String formattedDate = intl.DateFormat('HH:mm:ss').format(currentTime);
 
     var timeSpan = TextSpan(
       text: formattedDate,

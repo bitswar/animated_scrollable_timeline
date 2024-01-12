@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:animated_scrollable_timeline/src/timeline_painter.dart';
 import 'package:flutter/material.dart';
-import 'package:animated_scrollable_timeline/timeline_painter.dart';
 
 class AnimatedScrollableTimelineWidget extends StatefulWidget {
 /* ------------------------------ Dependencies ------------------------------ */
@@ -56,9 +56,11 @@ class _AnimatedScrollableTimelineWidgetState
   bool animHand = true;
   double previousAnimationValue = 0;
 /* -------------------------------------------------------------------------- */
+
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final double pixelRatio = MediaQuery.of(context).devicePixelRatio;
     limitTime = widget.limitDateTime?.call();
     controller = AnimationController(
       vsync: this,
@@ -67,7 +69,8 @@ class _AnimatedScrollableTimelineWidgetState
       ..addStatusListener(animationStatusListener)
       ..addListener(animationListener);
 
-    animation = Tween<double>(begin: 0, end: ars).animate(controller);
+    animation =
+        Tween<double>(begin: 0, end: ars / pixelRatio).animate(controller);
     controller.forward();
   }
 
@@ -113,8 +116,9 @@ class _AnimatedScrollableTimelineWidgetState
     );
   }
 
-  void animationListener() {}
-
+/* -------------------------------------------------------------------------- */
+  void animationListener() {} // ! wtf?
+/* -------------------------------------------------------------------------- */
   void animationStatusListener(AnimationStatus status) {
     if (status == AnimationStatus.completed) {
       controller.reset();
@@ -132,10 +136,12 @@ class _AnimatedScrollableTimelineWidgetState
     }
   }
 
+/* -------------------------------------------------------------------------- */
   DateTime getNewCurrentTime(Duration offset) {
     return currentTime.add(widget.gapDuration).subtract(offset);
   }
 
+/* -------------------------------------------------------------------------- */
   Duration computeFinalOffset() {
     if (animValue > 0) {
       return timeOffset - widget.gapDuration;
@@ -143,12 +149,14 @@ class _AnimatedScrollableTimelineWidgetState
     return timeOffset + widget.gapDuration;
   }
 
+/* -------------------------------------------------------------------------- */
   void stopAnimate(DragStartDetails details) {
     controller.stop();
     startDragTime = DateTime.now();
     animHand = true;
   }
 
+/* -------------------------------------------------------------------------- */
   void startAnimate(DragEndDetails details) {
     final millisecondsDiff = getMillisecondsDiff(animOffset);
 
@@ -156,11 +164,13 @@ class _AnimatedScrollableTimelineWidgetState
     controller.forward();
   }
 
+/* -------------------------------------------------------------------------- */
   int getMillisecondsDiff(double animationOffset) {
     final gapsDifference = animationOffset / ars;
     return (gapsDifference * widget.gapDuration.inMilliseconds).toInt();
   }
 
+/* -------------------------------------------------------------------------- */
   Duration getNewOffset(int millisecondsDiff) {
     if (millisecondsDiff < 0) {
       // Forward
@@ -175,6 +185,7 @@ class _AnimatedScrollableTimelineWidgetState
     }
   }
 
+/* -------------------------------------------------------------------------- */
   void resetManualAnimation() {
     animOffset = 0;
     animValue = 0;
@@ -183,6 +194,7 @@ class _AnimatedScrollableTimelineWidgetState
     animHand = false;
   }
 
+/* -------------------------------------------------------------------------- */
   void horizontalDragHandle(DragUpdateDetails details) {
     final offset = details.delta;
 
@@ -204,6 +216,7 @@ class _AnimatedScrollableTimelineWidgetState
     });
   }
 
+/* -------------------------------------------------------------------------- */
   bool canScrollLimitCheck(double offset) {
     final millisecondsDiff = getMillisecondsDiff(offset);
     final newOffset = getNewOffset(millisecondsDiff);
@@ -222,8 +235,9 @@ class _AnimatedScrollableTimelineWidgetState
   }
 
   void changeAnimValue(double value) {
+    final double pixelRatio = MediaQuery.of(context).devicePixelRatio;
     setState(() {
-      animValue -= value;
+      animValue -= value / pixelRatio;
     });
   }
 /* -------------------------------------------------------------------------- */
