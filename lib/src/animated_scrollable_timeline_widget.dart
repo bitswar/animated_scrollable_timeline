@@ -17,6 +17,8 @@ class AnimatedScrollableTimelineWidget extends StatefulWidget {
 /* -------------------------------------------------------------------------- */
   final bool scrollLeft;
 /* -------------------------------------------------------------------------- */
+  final void Function(DateTime)? onChosedTime;
+/* -------------------------------------------------------------------------- */
   final DateTime Function()? limitDateTime;
 /* ------------------------------- Constructor ------------------------------ */
   const AnimatedScrollableTimelineWidget({
@@ -28,6 +30,7 @@ class AnimatedScrollableTimelineWidget extends StatefulWidget {
     this.scrollRight = true,
     this.scrollLeft = true,
     this.limitDateTime,
+    this.onChosedTime,
   });
 /* -------------------------------------------------------------------------- */
   @override
@@ -162,6 +165,7 @@ class _AnimatedScrollableTimelineWidgetState
 
     timeOffset = getNewOffset(millisecondsDiff);
     controller.forward();
+    widget.onChosedTime?.call(currentTime);
   }
 
 /* -------------------------------------------------------------------------- */
