@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart' as intl;
 
 class TimelinePainter extends CustomPainter {
 /* ------------------------------ Dependencies ------------------------------ */
@@ -23,6 +22,7 @@ class TimelinePainter extends CustomPainter {
   final double devicePixelRatio;
   final double value;
   final Duration gapDuration;
+  final String Function(DateTime) dateTimeFormat;
   DateTime centralDate;
 /* -------------------------------------------------------------------------- */
   double get ratioGap => divisionGap / devicePixelRatio;
@@ -58,6 +58,7 @@ class TimelinePainter extends CustomPainter {
     required this.dividerWidth,
     required this.value,
     required this.gapDuration,
+    required this.dateTimeFormat,
   });
 /* -------------------------------------------------------------------------- */
   @override
@@ -209,7 +210,7 @@ class TimelinePainter extends CustomPainter {
     DateTime currentTime,
     bool isPast,
   ) {
-    String formattedDate = intl.DateFormat('HH:mm:ss').format(currentTime);
+    String formattedDate = dateTimeFormat(currentTime);
 
     var timeSpan = TextSpan(
       text: formattedDate,

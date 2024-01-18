@@ -19,6 +19,8 @@ class AnimatedScrollableTimelineWidget extends StatefulWidget {
 /* -------------------------------------------------------------------------- */
   final void Function(DateTime)? onChosedTime;
 /* -------------------------------------------------------------------------- */
+  final String Function(DateTime)? dateTimeFormat;
+/* -------------------------------------------------------------------------- */
   final DateTime Function()? limitDateTime;
 /* ------------------------------- Constructor ------------------------------ */
   const AnimatedScrollableTimelineWidget({
@@ -31,6 +33,7 @@ class AnimatedScrollableTimelineWidget extends StatefulWidget {
     this.scrollLeft = true,
     this.limitDateTime,
     this.onChosedTime,
+    this.dateTimeFormat,
   });
 /* -------------------------------------------------------------------------- */
   @override
@@ -100,6 +103,12 @@ class _AnimatedScrollableTimelineWidgetState
                 onHorizontalDragEnd: startAnimate,
                 child: CustomPaint(
                   painter: TimelinePainter(
+                    dateTimeFormat: (dateTime) {
+                      if (widget.dateTimeFormat != null) {
+                        return widget.dateTimeFormat!.call(dateTime);
+                      }
+                      return dateTime.toString();
+                    },
                     largeDivisionHeight: 36,
                     smallDivisionHeight: 12,
                     devicePixelRatio: pixelRatio,
