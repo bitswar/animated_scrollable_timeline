@@ -3,13 +3,8 @@ description: Flutter plugin which provides infinity scrollable
   timeline widget. It can be useful for implementing real-time
   streaming components as timeline for playing video.
 
-<<<<<<< Updated upstream
 version: 0.0.3
-homepage: https://github.com/bitswar.git
-=======
-version: 0.0.2
 homepage: https://github.com/bitswar
->>>>>>> Stashed changes
 repository: https://github.com/bitswar/animated_scrollable_timeline.git
 
 false_secrets:
@@ -21,6 +16,8 @@ environment:
 
 dependencies:
   flutter:
+    sdk: flutter
+  flutter_localizations:
     sdk: flutter
   intl: ^0.18.1
 
