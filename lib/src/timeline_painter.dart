@@ -99,7 +99,7 @@ class TimelinePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     if (oldDelegate is TimelinePainter) {
-      return value != oldDelegate.value;
+      return value.toInt() != oldDelegate.value.toInt();
     }
 
     return false;
