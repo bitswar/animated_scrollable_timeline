@@ -1,3 +1,6 @@
+## 0.0.6
+- Fixed issue wrong coloring of different parts of timeline
+
 ## 0.0.5
 - Improved rendering behaviour
 - Moved timeline's `past` part into another drawer

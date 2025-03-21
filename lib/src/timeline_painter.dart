@@ -59,6 +59,15 @@ class TimelinePainter extends CustomPainter {
     required Duration gapDuration,
     required String Function(DateTime) dateTimeFormat,
   }) {
+    final linePaint = Paint()
+      ..color = Colors.indigoAccent
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+    final futureLinePaint = Paint()
+      ..color = Colors.grey
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
     return TimelinePainter(
       smallDivisionHeight: smallDivisionHeight,
       largeDivisionHeight: largeDivisionHeight,
@@ -70,27 +79,20 @@ class TimelinePainter extends CustomPainter {
       value: value,
       gapDuration: gapDuration,
       dateTimeFormat: dateTimeFormat,
-      linePaint: Paint()
-        ..color = Colors.indigoAccent
-        ..strokeCap = StrokeCap.round
-        ..style = PaintingStyle.stroke,
-      futureLinePaint: Paint()
-        ..color = Colors.grey
-        ..strokeCap = StrokeCap.round
-        ..style = PaintingStyle.stroke,
+      linePaint: linePaint,
+      futureLinePaint: futureLinePaint,
     );
   }
 /* -------------------------------------------------------------------------- */
   @override
   void paint(Canvas canvas, Size size) {
-    final path = Path();
-
     linePaint.strokeWidth = dividerWidth;
+    canvas.translate(size.width / 2, 0);
 
     _drawTimelinePart(
-        canvas, path, size, centralDate, size.width, _DrawDirection.past);
+        canvas, Path(), size, centralDate, size.width, _DrawDirection.future);
     _drawTimelinePart(
-        canvas, path, size, centralDate, size.width, _DrawDirection.future);
+        canvas, Path(), size, centralDate, size.width, _DrawDirection.past);
   }
 
 /* -------------------------------------------------------------------------- */
@@ -114,8 +116,10 @@ class TimelinePainter extends CustomPainter {
   ) {
     final duration = gapDuration * direction.multiptier;
     final offsetY = size.height / 2;
-    int i = 0;
+    final painter =
+        direction == _DrawDirection.future ? futureLinePaint : linePaint;
 
+    int i = 0;
     for (double j = 0; j < drawLength; j += ratioGap + ratioWidth, i++) {
       if (centralDate.second % dividersAmount == 0) {
         _drawLargeDivision(
@@ -126,7 +130,7 @@ class TimelinePainter extends CustomPainter {
             direction.multiptier * (ratioWidth + ratioGap) * i - value,
             offsetY,
           ),
-          direction,
+          painter,
         );
         _drawTime(
           canvas,
@@ -147,7 +151,7 @@ class TimelinePainter extends CustomPainter {
             direction.multiptier * (ratioGap + ratioWidth) * i - value,
             offsetY,
           ),
-          direction,
+          painter,
         );
       }
       centralDate = centralDate.add(duration);
@@ -160,14 +164,11 @@ class TimelinePainter extends CustomPainter {
     Path path,
     Size size,
     Offset position,
-    _DrawDirection direction,
+    Paint painter,
   ) {
     path.moveTo(position.dx, size.height / 2 - 4);
     path.lineTo(position.dx, size.height / 2 - smallDivisionHeight - 4);
-    canvas.drawPath(
-      path,
-      direction == _DrawDirection.future ? futureLinePaint : linePaint,
-    );
+    canvas.drawPath(path, painter);
   }
 
 /* -------------------------------------------------------------------------- */
@@ -176,13 +177,13 @@ class TimelinePainter extends CustomPainter {
     Path path,
     Size size,
     Offset position,
-    _DrawDirection direction,
+    Paint painter,
   ) {
     path.moveTo(position.dx, size.height / 2);
     path.lineTo(position.dx, size.height / 2 - largeDivisionHeight);
     canvas.drawPath(
       path,
-      direction == _DrawDirection.future ? futureLinePaint : linePaint,
+      painter,
     );
   }
 
