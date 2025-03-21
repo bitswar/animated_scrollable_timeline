@@ -28,25 +28,9 @@ class TimelinePainter extends CustomPainter {
   double get ratioGap => divisionGap / devicePixelRatio;
   double get ratioWidth => dividerWidth / devicePixelRatio;
 /* -------------------------------- Painters -------------------------------- */
-  final linePaint = Paint()
-    ..color = Colors.indigoAccent
-    ..strokeCap = StrokeCap.round
-    ..style = PaintingStyle.stroke;
-
-  final futureLinePaint = Paint()
-    ..color = Colors.grey
-    ..strokeCap = StrokeCap.round
-    ..style = PaintingStyle.stroke;
-
-  final mainLinePaint = Paint()
-    ..color = Colors.indigoAccent
-    ..strokeCap = StrokeCap.round
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = 4;
-
-  final rectLinePaint = Paint()
-    ..color = Colors.indigo.withOpacity(0.15)
-    ..style = PaintingStyle.fill;
+  final Paint linePaint;
+/* -------------------------------------------------------------------------- */
+  final Paint futureLinePaint;
 /* ------------------------------- Constructor ------------------------------ */
   TimelinePainter({
     required this.smallDivisionHeight,
@@ -59,64 +43,64 @@ class TimelinePainter extends CustomPainter {
     required this.value,
     required this.gapDuration,
     required this.dateTimeFormat,
+    required this.linePaint,
+    required this.futureLinePaint,
   });
+/* -------------------------------------------------------------------------- */
+  factory TimelinePainter.general({
+    required double smallDivisionHeight,
+    required double largeDivisionHeight,
+    required double devicePixelRatio,
+    required DateTime centralDate,
+    required int dividersAmount,
+    required double divisionGap,
+    required double dividerWidth,
+    required double value,
+    required Duration gapDuration,
+    required String Function(DateTime) dateTimeFormat,
+  }) {
+    return TimelinePainter(
+      smallDivisionHeight: smallDivisionHeight,
+      largeDivisionHeight: largeDivisionHeight,
+      devicePixelRatio: devicePixelRatio,
+      centralDate: centralDate,
+      dividersAmount: dividersAmount,
+      divisionGap: divisionGap,
+      dividerWidth: dividerWidth,
+      value: value,
+      gapDuration: gapDuration,
+      dateTimeFormat: dateTimeFormat,
+      linePaint: Paint()
+        ..color = Colors.indigoAccent
+        ..strokeCap = StrokeCap.round
+        ..style = PaintingStyle.stroke,
+      futureLinePaint: Paint()
+        ..color = Colors.grey
+        ..strokeCap = StrokeCap.round
+        ..style = PaintingStyle.stroke,
+    );
+  }
 /* -------------------------------------------------------------------------- */
   @override
   void paint(Canvas canvas, Size size) {
-    final Offset startingPoint = Offset(0, (size.height / 2));
-    final Offset endingPoint = Offset(size.width / 2, size.height / 2);
+    final path = Path();
+
     linePaint.strokeWidth = dividerWidth;
 
-    var path = Path();
-
-    canvas.drawLine(startingPoint, endingPoint, linePaint);
-    canvas.translate(size.width / 2, 0);
-    canvas.drawLine(
-      Offset(0, size.height / 2),
-      Offset(0, size.height / 2 - mainLineHeight),
-      mainLinePaint,
-    );
-    canvas.drawRect(
-      Rect.fromPoints(
-        Offset(-size.width, size.height / 2 - mainLineHeight),
-        Offset(0, size.height / 2),
-      ),
-      rectLinePaint,
-    );
-
-    final drawer = _getDrawerFunction(
-      canvas,
-      path,
-      size,
-      centralDate,
-    );
-    drawer(size.width, _DrawDirection.past);
-    drawer(size.width, _DrawDirection.future);
+    _drawTimelinePart(
+        canvas, path, size, centralDate, size.width, _DrawDirection.past);
+    _drawTimelinePart(
+        canvas, path, size, centralDate, size.width, _DrawDirection.future);
   }
 
 /* -------------------------------------------------------------------------- */
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
-  }
+    if (oldDelegate is TimelinePainter) {
+      return value != oldDelegate.value;
+    }
 
-/* -------------------------------------------------------------------------- */
-  Function(double, _DrawDirection) _getDrawerFunction(
-    Canvas canvas,
-    Path path,
-    Size size,
-    DateTime centralDate,
-  ) {
-    return (double drawLength, _DrawDirection direction) {
-      _drawTimelinePart(
-        canvas,
-        path,
-        size,
-        centralDate,
-        drawLength,
-        direction,
-      );
-    };
+    return false;
   }
 
 /* -------------------------------------------------------------------------- */
@@ -128,8 +112,8 @@ class TimelinePainter extends CustomPainter {
     double drawLength,
     _DrawDirection direction,
   ) {
-    final duration =
-        direction == _DrawDirection.future ? gapDuration : -gapDuration;
+    final duration = gapDuration * direction.multiptier;
+    final offsetY = size.height / 2;
     int i = 0;
 
     for (double j = 0; j < drawLength; j += ratioGap + ratioWidth, i++) {
@@ -140,7 +124,7 @@ class TimelinePainter extends CustomPainter {
           size,
           Offset(
             direction.multiptier * (ratioWidth + ratioGap) * i - value,
-            size.height / 2,
+            offsetY,
           ),
           direction,
         );
@@ -148,7 +132,7 @@ class TimelinePainter extends CustomPainter {
           canvas,
           Offset(
             direction.multiptier * (ratioWidth + ratioGap) * i - value,
-            size.height / 2,
+            offsetY,
           ),
           size,
           centralDate,
@@ -161,7 +145,7 @@ class TimelinePainter extends CustomPainter {
           size,
           Offset(
             direction.multiptier * (ratioGap + ratioWidth) * i - value,
-            size.height / 2,
+            offsetY,
           ),
           direction,
         );

@@ -1,3 +1,7 @@
+## 0.0.5
+- Improved rendering behaviour
+- Moved timeline's `past` part into another drawer
+
 ## 0.0.4
 - Removed `intl` as dependency from library
 - Added `dateTimeFormat` attribute to classes to let user specify formatting

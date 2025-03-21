@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:animated_scrollable_timeline/src/past_part_painter.dart';
 import 'package:animated_scrollable_timeline/src/timeline_painter.dart';
 import 'package:flutter/material.dart';
 
@@ -83,6 +84,8 @@ class _AnimatedScrollableTimelineWidgetState
   /* -------------------------------------------------------------------------- */
   @override
   void dispose() {
+    controller.removeStatusListener(animationStatusListener);
+    controller.removeListener(animationListener);
     controller.dispose();
     super.dispose();
   }
@@ -92,37 +95,46 @@ class _AnimatedScrollableTimelineWidgetState
   Widget build(BuildContext context) {
     final double pixelRatio = MediaQuery.of(context).devicePixelRatio;
     return SizedBox.expand(
-      child: RepaintBoundary(
-        child: GestureDetector(
-          child: AnimatedBuilder(
-            animation: animation,
-            builder: (context, child) {
-              return GestureDetector(
-                onHorizontalDragUpdate: horizontalDragHandle,
-                onHorizontalDragStart: stopAnimate,
-                onHorizontalDragEnd: startAnimate,
-                child: CustomPaint(
-                  painter: TimelinePainter(
-                    dateTimeFormat: (dateTime) {
-                      if (widget.dateTimeFormat != null) {
-                        return widget.dateTimeFormat!.call(dateTime);
-                      }
-                      return dateTime.toString();
-                    },
-                    largeDivisionHeight: 36,
-                    smallDivisionHeight: 12,
-                    devicePixelRatio: pixelRatio,
-                    centralDate: currentTime,
-                    dividersAmount: widget.dividersAmount,
-                    dividerWidth: widget.dividerWidth,
-                    divisionGap: widget.divisionGap,
-                    gapDuration: widget.gapDuration,
-                    value: animHand ? animValue : animation.value,
+      child: GestureDetector(
+        onHorizontalDragUpdate: horizontalDragHandle,
+        onHorizontalDragStart: stopAnimate,
+        onHorizontalDragEnd: startAnimate,
+        child: Stack(
+          fit: StackFit.passthrough,
+          children: [
+            AnimatedBuilder(
+              animation: animation,
+              builder: (context, child) {
+                return RepaintBoundary(
+                  child: CustomPaint(
+                    isComplex: true,
+                    painter: TimelinePainter.general(
+                      dateTimeFormat: (dateTime) {
+                        if (widget.dateTimeFormat != null) {
+                          return widget.dateTimeFormat!.call(dateTime);
+                        }
+                        return dateTime.toString();
+                      },
+                      largeDivisionHeight: 36,
+                      smallDivisionHeight: 12,
+                      devicePixelRatio: pixelRatio,
+                      centralDate: currentTime,
+                      dividersAmount: widget.dividersAmount,
+                      dividerWidth: widget.dividerWidth,
+                      divisionGap: widget.divisionGap,
+                      gapDuration: widget.gapDuration,
+                      value: animHand ? animValue : animation.value,
+                    ),
                   ),
-                ),
-              );
-            },
-          ),
+                );
+              },
+            ),
+            CustomPaint(
+              painter: PastPartPainter.general(),
+              willChange: false,
+              isComplex: false,
+            ),
+          ],
         ),
       ),
     );
@@ -163,6 +175,10 @@ class _AnimatedScrollableTimelineWidgetState
 
 /* -------------------------------------------------------------------------- */
   void stopAnimate(DragStartDetails details) {
+    if (!widget.scrollRight && !widget.scrollLeft) {
+      return;
+    }
+
     controller.stop();
     startDragTime = DateTime.now();
     animHand = true;
@@ -170,6 +186,9 @@ class _AnimatedScrollableTimelineWidgetState
 
 /* -------------------------------------------------------------------------- */
   void startAnimate(DragEndDetails details) {
+    if (!widget.scrollRight && !widget.scrollLeft) {
+      return;
+    }
     final millisecondsDiff = getMillisecondsDiff(animOffset);
 
     timeOffset = getNewOffset(millisecondsDiff);

@@ -25,6 +25,8 @@ class MyApp extends StatelessWidget {
           children: [
             AnimatedScrollableTimelineWidget(
               limitDateTime: () => DateTime.now(),
+              //scrollRight: false,
+              //scrollLeft: false,
               dateTimeFormat: (dateTime) {
                 return DateFormat('HH:mm:ss').format(dateTime);
               },
