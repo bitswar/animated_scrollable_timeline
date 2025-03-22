@@ -23,6 +23,10 @@ class AnimatedScrollableTimelineWidget extends StatefulWidget {
   final String Function(DateTime)? dateTimeFormat;
 /* -------------------------------------------------------------------------- */
   final DateTime Function()? limitDateTime;
+/* -------------------------------------------------------------------------- */
+  final double largeDivisionHeight;
+/* -------------------------------------------------------------------------- */
+  final double smallDivisionHeight;
 /* ------------------------------- Constructor ------------------------------ */
   const AnimatedScrollableTimelineWidget({
     super.key,
@@ -35,7 +39,16 @@ class AnimatedScrollableTimelineWidget extends StatefulWidget {
     this.limitDateTime,
     this.onChosedTime,
     this.dateTimeFormat,
+    this.largeDivisionHeight = 36,
+    this.smallDivisionHeight = 12,
   });
+
+  String _defaultDateTimeFormat(DateTime dateTime) {
+                        if (dateTimeFormat != null) {
+                          return dateTimeFormat!.call(dateTime);
+                        }
+                        return dateTime.toString();
+                      }
 /* -------------------------------------------------------------------------- */
   @override
   State<AnimatedScrollableTimelineWidget> createState() =>
@@ -109,14 +122,9 @@ class _AnimatedScrollableTimelineWidgetState
                   child: CustomPaint(
                     isComplex: true,
                     painter: TimelinePainter.general(
-                      dateTimeFormat: (dateTime) {
-                        if (widget.dateTimeFormat != null) {
-                          return widget.dateTimeFormat!.call(dateTime);
-                        }
-                        return dateTime.toString();
-                      },
-                      largeDivisionHeight: 36,
-                      smallDivisionHeight: 12,
+                      dateTimeFormat: widget.dateTimeFormat ?? widget._defaultDateTimeFormat,
+                      largeDivisionHeight: widget.largeDivisionHeight,
+                      smallDivisionHeight: widget.smallDivisionHeight,
                       devicePixelRatio: pixelRatio,
                       centralDate: currentTime,
                       dividersAmount: widget.dividersAmount,
