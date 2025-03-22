@@ -1,3 +1,16 @@
+# 1.0.0 (2025-03-22)
+
+
+### Bug Fixes
+
+* Fixed issue wrong coloring of timeline ([f9de7a8](https://github.com/bitswar/animated_scrollable_timeline/commit/f9de7a8ffacf494a1ae14125d78ccf62df775d3c))
+
+
+### Features
+
+* Improving rendering behaviour ([2e86047](https://github.com/bitswar/animated_scrollable_timeline/commit/2e8604749e8670514e27a7a10c89d9b8bda4edf1))
+* **widgets:** added widget without scrolling ([a414005](https://github.com/bitswar/animated_scrollable_timeline/commit/a4140050387aef8d8fbdd574b3b41749a24ee712))
+
 ## 0.0.6
 - Fixed issue wrong coloring of different parts of timeline
 
