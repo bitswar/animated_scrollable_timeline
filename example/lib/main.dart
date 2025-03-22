@@ -14,19 +14,26 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Painting example",
+      title: "Animated Scrollable Timeline",
       theme: ThemeData.light(useMaterial3: true),
       darkTheme: ThemeData.dark(useMaterial3: true),
       home: Scaffold(
         appBar: AppBar(
-          title: const Text("Painting Example"),
+          title: const Text("Animated Scrollable Timeline"),
         ),
         body: Stack(
           children: [
+            const Positioned(
+              top: 100,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: AnimatedTimeline(),
+            ),
             AnimatedScrollableTimelineWidget(
               limitDateTime: () => DateTime.now(),
-              //scrollRight: false,
-              //scrollLeft: false,
+              scrollRight: true,
+              scrollLeft: true,
               dateTimeFormat: (dateTime) {
                 return DateFormat('HH:mm:ss').format(dateTime);
               },
