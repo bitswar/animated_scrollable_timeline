@@ -44,11 +44,12 @@ class AnimatedScrollableTimelineWidget extends StatefulWidget {
   });
 
   String _defaultDateTimeFormat(DateTime dateTime) {
-                        if (dateTimeFormat != null) {
-                          return dateTimeFormat!.call(dateTime);
-                        }
-                        return dateTime.toString();
-                      }
+    if (dateTimeFormat != null) {
+      return dateTimeFormat!.call(dateTime);
+    }
+    return dateTime.toString();
+  }
+
 /* -------------------------------------------------------------------------- */
   @override
   State<AnimatedScrollableTimelineWidget> createState() =>
@@ -122,7 +123,8 @@ class _AnimatedScrollableTimelineWidgetState
                   child: CustomPaint(
                     isComplex: true,
                     painter: TimelinePainter.general(
-                      dateTimeFormat: widget.dateTimeFormat ?? widget._defaultDateTimeFormat,
+                      dateTimeFormat: widget.dateTimeFormat ??
+                          widget._defaultDateTimeFormat,
                       largeDivisionHeight: widget.largeDivisionHeight,
                       smallDivisionHeight: widget.smallDivisionHeight,
                       devicePixelRatio: pixelRatio,
