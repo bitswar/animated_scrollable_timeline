@@ -1,3 +1,4 @@
+import 'package:animated_scrollable_timeline/src/enums/draw_direction.dart';
 import 'package:flutter/material.dart';
 
 class TimelinePainter extends CustomPainter {
@@ -90,9 +91,9 @@ class TimelinePainter extends CustomPainter {
     canvas.translate(size.width / 2, 0);
 
     _drawTimelinePart(
-        canvas, Path(), size, centralDate, size.width, _DrawDirection.future);
+        canvas, Path(), size, centralDate, size.width, DrawDirection.future);
     _drawTimelinePart(
-        canvas, Path(), size, centralDate, size.width, _DrawDirection.past);
+        canvas, Path(), size, centralDate, size.width, DrawDirection.past);
   }
 
 /* -------------------------------------------------------------------------- */
@@ -112,45 +113,38 @@ class TimelinePainter extends CustomPainter {
     Size size,
     DateTime centralDate,
     double drawLength,
-    _DrawDirection direction,
+    DrawDirection direction,
   ) {
-    final duration = gapDuration * direction.multiptier;
+    final duration = gapDuration * direction.multiplier;
     final offsetY = size.height / 2;
     final painter =
-        direction == _DrawDirection.future ? futureLinePaint : linePaint;
+        direction == DrawDirection.future ? futureLinePaint : linePaint;
 
     int i = 0;
     for (double j = 0; j < drawLength; j += ratioGap + ratioWidth, i++) {
+      final offsetX =
+          direction.multiplier * (ratioWidth + ratioGap) * i - value;
       if (centralDate.second % dividersAmount == 0) {
         _drawLargeDivision(
           canvas,
           path,
           size,
-          Offset(
-            direction.multiptier * (ratioWidth + ratioGap) * i - value,
-            offsetY,
-          ),
+          Offset(offsetX, offsetY),
           painter,
         );
         _drawTime(
           canvas,
-          Offset(
-            direction.multiptier * (ratioWidth + ratioGap) * i - value,
-            offsetY,
-          ),
+          Offset(offsetX, offsetY),
           size,
           centralDate,
-          direction == _DrawDirection.past,
+          direction == DrawDirection.past,
         );
       } else {
         _drawSmallDivision(
           canvas,
           path,
           size,
-          Offset(
-            direction.multiptier * (ratioGap + ratioWidth) * i - value,
-            offsetY,
-          ),
+          Offset(offsetX, offsetY),
           painter,
         );
       }
@@ -217,12 +211,3 @@ class TimelinePainter extends CustomPainter {
 
 /* -------------------------------------------------------------------------- */
 }
-
-/* -------------------------------------------------------------------------- */
-enum _DrawDirection {
-  future(1),
-  past(-1);
-
-  final int multiptier;
-  const _DrawDirection(this.multiptier);
-} /* -------------------------------------------------------------------------- */
