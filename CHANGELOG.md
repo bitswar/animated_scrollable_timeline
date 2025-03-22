@@ -1,6 +1,3 @@
-## 0.0.7
-- Reduced amount of re-renderings
-
 ## 0.0.6
 - Fixed issue wrong coloring of different parts of timeline
 
