@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/bitswar/animated_scrollable_timeline/compare/1.0.0...1.0.1) (2025-03-23)
+
+
+### Bug Fixes
+
+* **past painter:** wrapped with repaint boundary to isolate layer ([9f7a037](https://github.com/bitswar/animated_scrollable_timeline/commit/9f7a03709d074df3322cf7eacb37d895b4f27050))
+
 # 1.0.0 (2025-03-22)
 
 
