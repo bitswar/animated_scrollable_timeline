@@ -1,0 +1,16 @@
+name: animated_scrollable_timeline
+
+packages:
+  - .
+
+command:
+  bootstrap:
+    runPubGetInParallel: false
+
+scripts:
+  test:
+    description: Run tests in chosen package
+    exec: flutter test
+    packageFilters:
+      dirExists: test
+      scope: "*"
