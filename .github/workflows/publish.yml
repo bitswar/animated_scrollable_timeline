@@ -36,6 +36,8 @@ jobs:
     needs: verify
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    outputs:
+      version: ${{ steps.version.outputs.new-version }}
     
     steps:
       - uses: actions/checkout@v4
@@ -81,4 +83,32 @@ jobs:
       - name: Run semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: semantic-release 
+        id: version
+        run: |
+          version=$(semantic-release --dry-run | grep -oP 'The next release version is \K[0-9]+\.[0-9]+\.[0-9]+' || echo "no-new-version")
+          echo "new-version=$version" >> $GITHUB_OUTPUT
+          semantic-release
+
+  publish:
+    permissions:
+      id-token: write # Required for authentication using OIDC
+    needs: release
+    runs-on: ubuntu-latest
+    if: needs.release.outputs.version != 'no-new-version'
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: 'stable'
+          
+      - name: Install dependencies
+        run: flutter pub get
+        
+      - name: Publish to pub.dev
+        run: dart pub publish -f
