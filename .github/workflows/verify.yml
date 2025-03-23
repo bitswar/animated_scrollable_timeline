@@ -57,27 +57,11 @@ jobs:
           flutter-version: '3.19.0'
           channel: 'stable'
           
-      - name: Install dependencies
-        run: flutter pub get
-        
-      - name: Install Melos
-        run: dart pub global activate melos
-        
-      - name: Setup Melos
-        run: melos bootstrap
-        
-      - name: Version packages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        id: version
-        run: |
-          melos version --yes
-          version=$(grep "version:" pubspec.yaml | cut -d' ' -f2)
-          echo "new-version=$version" >> $GITHUB_OUTPUT
-          
-      - name: Publish to pub.dev
-        if: steps.version.outputs.new-version != 'no-new-version'
-        # env:
-        #   PUB_DEV_PUBLISH_ACCESS_TOKEN: ${{ secrets.PUB_DEV_PUBLISH_ACCESS_TOKEN }}
-        run: |
-          melos publish --yes
+      - uses: bluefireteam/melos-action@v3
+        with:
+          git-email: "dany.weissmall@gmail.com"
+          git-name: "weissmall"
+          run-bootstrap: false
+          run-versioning: true
+          tags: true
+          publish: true
