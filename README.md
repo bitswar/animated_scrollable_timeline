@@ -15,6 +15,7 @@ and the Flutter guide for
 # Animated Scrollable Timeline
 
 A Flutter widget that provides an infinite scrollable timeline with smooth animations. This widget is particularly useful for implementing real-time streaming components, such as video playback timelines or time-based data visualization.
+![animated timeline](https://github.com/user-attachments/assets/884cc7a5-89f0-4702-ac14-ac5a3c5e4547)
 
 ## Features
 
@@ -41,6 +42,7 @@ dependencies:
 Here's a basic example of how to use the `AnimatedScrollableTimelineWidget`:
 
 ```dart
+
 import 'package:animated_scrollable_timeline/animated_scrollable_timeline.dart';
 
 // Inside your widget tree
