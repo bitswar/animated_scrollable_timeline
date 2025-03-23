@@ -5,11 +5,11 @@ import 'package:animated_scrollable_timeline/src/timeline_painter.dart';
 import 'package:flutter/material.dart';
 
 /// A widget that displays an animated timeline without scrolling functionality.
-/// 
+///
 /// This widget provides a basic timeline visualization that automatically
 /// animates through time. It's useful for displaying a static or
 /// programmatically animated timeline without user interaction.
-/// 
+///
 /// The timeline displays time divisions with customizable appearance,
 /// including support for past and future time periods and custom time formatting.
 class AnimatedTimeline extends StatefulWidget {
@@ -36,7 +36,7 @@ class AnimatedTimeline extends StatefulWidget {
   final String Function(DateTime)? dateTimeFormat;
 
   /// Creates a new [AnimatedTimeline].
-  /// 
+  ///
   /// All parameters except [currentTime] are optional and have default values:
   /// - [dividerWidth]: 1.0
   /// - [divisionGap]: 21.0
@@ -44,7 +44,7 @@ class AnimatedTimeline extends StatefulWidget {
   /// - [gapDuration]: 1 second
   /// - [largeDivisionHeight]: 36.0
   /// - [smallDivisionHeight]: 12.0
-  /// 
+  ///
   /// The [dateTimeFormat] callback is optional.
   const AnimatedTimeline({
     super.key,
@@ -57,7 +57,8 @@ class AnimatedTimeline extends StatefulWidget {
     this.dateTimeFormat,
   });
 
-  static String _defaultDateTimeFormat(DateTime dateTime) => dateTime.toString();
+  static String _defaultDateTimeFormat(DateTime dateTime) =>
+      dateTime.toString();
 
   @override
   State<AnimatedTimeline> createState() => _AnimatedTimelineState();
@@ -110,7 +111,8 @@ class _AnimatedTimelineState extends State<AnimatedTimeline>
                 child: CustomPaint(
                   isComplex: true,
                   painter: TimelinePainter.general(
-                    dateTimeFormat: widget.dateTimeFormat ?? AnimatedTimeline._defaultDateTimeFormat,
+                    dateTimeFormat: widget.dateTimeFormat ??
+                        AnimatedTimeline._defaultDateTimeFormat,
                     largeDivisionHeight: widget.largeDivisionHeight,
                     smallDivisionHeight: widget.smallDivisionHeight,
                     devicePixelRatio: pixelRatio,

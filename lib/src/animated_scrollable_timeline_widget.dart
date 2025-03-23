@@ -5,11 +5,11 @@ import 'package:animated_scrollable_timeline/src/timeline_painter.dart';
 import 'package:flutter/material.dart';
 
 /// A widget that displays an animated timeline with scrolling functionality.
-/// 
+///
 /// This widget provides a horizontally scrollable timeline that can be used to
 /// display and navigate through time-based data. It supports both automatic
 /// animation and user interaction through horizontal scrolling.
-/// 
+///
 /// The timeline displays time divisions with customizable appearance and behavior,
 /// including support for past and future time periods, custom time formatting,
 /// and time limits.
@@ -50,7 +50,7 @@ class AnimatedScrollableTimelineWidget extends StatefulWidget {
   final double smallDivisionHeight;
 
   /// Creates a new [AnimatedScrollableTimelineWidget].
-  /// 
+  ///
   /// All parameters are optional and have default values:
   /// - [dividerWidth]: 1.0
   /// - [divisionGap]: 21.0
@@ -60,7 +60,7 @@ class AnimatedScrollableTimelineWidget extends StatefulWidget {
   /// - [scrollLeft]: true
   /// - [largeDivisionHeight]: 36.0
   /// - [smallDivisionHeight]: 12.0
-  /// 
+  ///
   /// The [dateTimeFormat], [onChosedTime], and [limitDateTime] callbacks are optional.
   const AnimatedScrollableTimelineWidget({
     super.key,
@@ -77,7 +77,8 @@ class AnimatedScrollableTimelineWidget extends StatefulWidget {
     this.smallDivisionHeight = 12,
   });
 
-  static String _defaultDateTimeFormat(DateTime dateTime) => dateTime.toString();
+  static String _defaultDateTimeFormat(DateTime dateTime) =>
+      dateTime.toString();
 
   @override
   State<AnimatedScrollableTimelineWidget> createState() =>
@@ -143,7 +144,9 @@ class _AnimatedScrollableTimelineWidgetState
                   child: CustomPaint(
                     isComplex: true,
                     painter: TimelinePainter.general(
-                      dateTimeFormat: widget.dateTimeFormat ?? AnimatedScrollableTimelineWidget._defaultDateTimeFormat,
+                      dateTimeFormat: widget.dateTimeFormat ??
+                          AnimatedScrollableTimelineWidget
+                              ._defaultDateTimeFormat,
                       largeDivisionHeight: widget.largeDivisionHeight,
                       smallDivisionHeight: widget.smallDivisionHeight,
                       devicePixelRatio: pixelRatio,
