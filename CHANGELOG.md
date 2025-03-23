@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/bitswar/animated_scrollable_timeline/compare/1.0.1...1.0.2) (2025-03-23)
+
+
+### Bug Fixes
+
+* **style:** Fix some comments to test actions ([879649d](https://github.com/bitswar/animated_scrollable_timeline/commit/879649dbf30b42717384cd50e2e248ff9bffdfd6))
+
 ## [1.0.1](https://github.com/bitswar/animated_scrollable_timeline/compare/1.0.0...1.0.1) (2025-03-23)
 
 
