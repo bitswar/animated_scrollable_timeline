@@ -39,6 +39,27 @@ dependencies:
   animated_scrollable_timeline: any
 ```
 
+## Development
+
+This project uses [Melos](https://melos.invertase.dev/) for managing the development workflow. To get started:
+
+1. Install Melos:
+```bash
+dart pub global activate melos
+```
+
+2. Setup the project:
+```bash
+melos bootstrap
+```
+
+3. Available commands:
+- `melos run analyze` - Run static analysis
+- `melos run test` - Run tests
+- `melos run version` - Version the package
+- `melos run publish` - Publish to pub.dev
+- `melos run clean` - Clean the project
+
 ## Usage
 
 ### AnimatedScrollableTimelineWidget

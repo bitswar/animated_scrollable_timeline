@@ -3,14 +3,30 @@ name: animated_scrollable_timeline
 packages:
   - .
 
-command:
-  bootstrap:
-    runPubGetInParallel: false
-
 scripts:
+  analyze:
+    run: |
+      melos exec -c 1 -- \
+        flutter analyze .
+    description: Run `flutter analyze` for all packages
+
   test:
-    description: Run tests in chosen package
-    exec: flutter test
-    packageFilters:
-      dirExists: test
-      scope: "*"
+    run: |
+      melos exec -c 1 -- \
+        flutter test
+    description: Run `flutter test` for all packages
+
+  version:
+    run: |
+      melos version --yes
+    description: Version all packages
+
+  publish:
+    run: |
+      melos publish --yes
+    description: Publish all packages
+
+  clean:
+    run: |
+      melos clean
+    description: Clean all packages
