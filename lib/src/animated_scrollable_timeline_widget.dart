@@ -161,10 +161,12 @@ class _AnimatedScrollableTimelineWidgetState
                 );
               },
             ),
-            CustomPaint(
-              painter: PastPartPainter.general(),
-              willChange: false,
-              isComplex: false,
+            RepaintBoundary(
+              child: CustomPaint(
+                painter: PastPartPainter.general(),
+                willChange: false,
+                isComplex: false,
+              ),
             ),
           ],
         ),

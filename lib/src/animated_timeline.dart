@@ -127,10 +127,12 @@ class _AnimatedTimelineState extends State<AnimatedTimeline>
               );
             },
           ),
-          CustomPaint(
-            painter: PastPartPainter.general(),
-            willChange: false,
-            isComplex: false,
+          RepaintBoundary(
+            child: CustomPaint(
+              painter: PastPartPainter.general(),
+              willChange: false,
+              isComplex: false,
+            ),
           ),
         ],
       ),
