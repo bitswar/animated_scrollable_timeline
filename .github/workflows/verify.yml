@@ -1,4 +1,4 @@
-name: Verifu and Release
+name: Verify and Release
 
 on:
   push:
