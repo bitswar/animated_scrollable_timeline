@@ -205,6 +205,7 @@ class TimelinePainter extends CustomPainter {
       minWidth: 0,
       maxWidth: size.width,
     );
+
     textPainter.paint(
         canvas, Offset(position.dx + 4, position.dy - largeDivisionHeight - 2));
   }
