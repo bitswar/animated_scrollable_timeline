@@ -3,28 +3,20 @@ name: Publish to pub.dev
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+*'
+    - '[0-9]+.[0-9]+.[0-9]+' # tag pattern on pub.dev: '{{version}'
 
-permissions: read-all
-
+# Publish using custom workflow
 jobs:
   publish:
     permissions:
       id-token: write # Required for authentication using OIDC
     runs-on: ubuntu-latest
-    environment: pub-dev
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.19.0'
-          channel: 'stable'
-
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@v1
       - name: Install dependencies
-        run: flutter pub get
+        run: dart pub get
+      # Here you can insert custom steps you need
+      # - run: dart tool/generate-code.dart
       - name: Publish
-        run: dart pub publish -f
+        run: dart pub publish --force
