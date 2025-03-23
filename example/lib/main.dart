@@ -24,11 +24,37 @@ class MyApp extends StatelessWidget {
         body: Stack(
           children: [
             const Positioned(
-              top: 100,
+              top: 150,
               left: 0,
               right: 0,
               bottom: 0,
               child: AnimatedTimeline(),
+            ),
+            Positioned(
+              top: 300,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: AnimatedTimeline(
+                dateTimeFormat: (dateTime) {
+                  return DateFormat('HH:mm:ss').format(dateTime);
+                },
+                divisionGap: 21,
+                dividersAmount: 5,
+              ),
+            ),
+            Positioned(
+              top: 450,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: AnimatedTimeline(
+                dateTimeFormat: (dateTime) {
+                  return DateFormat('mm:ss').format(dateTime);
+                },
+                divisionGap: 21,
+                dividersAmount: 10,
+              ),
             ),
             AnimatedScrollableTimelineWidget(
               limitDateTime: () => DateTime.now(),
