@@ -1,11 +1,12 @@
 name: Publish to pub.dev
 
 on:
-  # push:
-  #   tags:
-  #   - '[0-9]+.[0-9]+.[0-9]+' # tag pattern on pub.dev: '{{version}'
+  push:
+    tags:
+    - '[0-9]+.[0-9]+.[0-9]+' # tag pattern on pub.dev: '{{version}'
   workflow_dispatch:
 
+# Publish using custom workflow
 jobs:
   publish:
     permissions:
@@ -14,5 +15,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: 'stable'
+      - name: Install dependencies
+        run: dart pub get
+      # Here you can insert custom steps you need
+      # - run: dart tool/generate-code.dart
+      - name: Authenticate with pub.dev
+        run: echo '${{ secrets.PUB_CREDENTIALS_JSON }}' > $HOME/.pub-cache/credentials.json
       - name: Publish
         run: dart pub publish --force
