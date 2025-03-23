@@ -94,7 +94,6 @@ jobs:
       id-token: write # Required for authentication using OIDC
     needs: release
     runs-on: ubuntu-latest
-    if: needs.release.outputs.version != 'no-new-version'
     
     steps:
       - uses: actions/checkout@v4
