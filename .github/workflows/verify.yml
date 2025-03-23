@@ -1,16 +1,18 @@
-name: Verify
+name: Verify and Release
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -27,17 +29,8 @@ jobs:
       - name: Run tests
         run: flutter test
         
-      - name: Install Melos
-        run: dart pub global activate melos
-        
-      - name: Setup Melos
-        run: melos bootstrap
-        
-      - name: Run Melos analyze
-        run: melos run analyze
-        
-      - name: Run Melos test
-        run: melos run test
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
 
   release:
     needs: verify
@@ -51,17 +44,47 @@ jobs:
         with:
           fetch-depth: 0
           
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          flutter-version: '3.19.0'
-          channel: 'stable'
+          node-version: '20.x'
           
-      - uses: bluefireteam/melos-action@v3
-        with:
-          git-email: "dany.weissmall@gmail.com"
-          git-name: "weissmall"
-          run-bootstrap: false
-          run-versioning: true
-          tags: true
-          publish: true
+      - name: Install semantic-release dependencies
+        run: |
+          npm install -g semantic-release
+          npm install -g @semantic-release/changelog
+          npm install -g @semantic-release/git
+          npm install -g @semantic-release/exec
+          
+      - name: Create .releaserc
+        run: |
+          cat > .releaserc << EOF
+          {
+            "branches": ["main"],
+            "tagFormat": "\${version}",
+            "plugins": [
+              "@semantic-release/commit-analyzer",
+              "@semantic-release/release-notes-generator",
+              "@semantic-release/changelog",
+              ["@semantic-release/exec", {
+                "prepareCmd": "sed -i 's/version: .*/version: \${nextRelease.version}/g' pubspec.yaml"
+              }],
+              ["@semantic-release/git", {
+                "assets": ["CHANGELOG.md", "pubspec.yaml"],
+                "message": "chore(release): \${nextRelease.version} [skip ci]\n\n\${nextRelease.notes}"
+              }],
+              ["@semantic-release/github", {
+                "assets": []
+              }]
+            ]
+          }
+          EOF
+
+      - name: Run semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: version
+        run: |
+          version=$(semantic-release --dry-run | grep -oP 'The next release version is \K[0-9]+\.[0-9]+\.[0-9]+' || echo "no-new-version")
+          echo "new-version=$version" >> $GITHUB_OUTPUT
+          semantic-release
