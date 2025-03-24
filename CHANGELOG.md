@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/bitswar/animated_scrollable_timeline/compare/1.0.3...2.0.0) (2025-03-24)
+
+
+### Features
+
+* **animation:** removed animation in `AnimatedTimeline` ([4e6d141](https://github.com/bitswar/animated_scrollable_timeline/commit/4e6d1415748bb49bb0a3d0f42b8f51468460c657))
+
+
+### BREAKING CHANGES
+
+* **animation:** API for TImelinePainter changed
+
 ## [1.0.3](https://github.com/bitswar/animated_scrollable_timeline/compare/1.0.2...1.0.3) (2025-03-23)
 
 
