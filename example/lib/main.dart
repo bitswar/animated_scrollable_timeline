@@ -23,12 +23,16 @@ class MyApp extends StatelessWidget {
         ),
         body: Stack(
           children: [
-            const Positioned(
+            Positioned(
               top: 150,
               left: 0,
               right: 0,
               bottom: 0,
-              child: AnimatedTimeline(),
+              child: AnimatedTimeline(
+                dateTimeFormat: (dateTime) {
+                  return DateFormat('HH:mm:ss').format(dateTime);
+                },
+              ),
             ),
             Positioned(
               top: 300,

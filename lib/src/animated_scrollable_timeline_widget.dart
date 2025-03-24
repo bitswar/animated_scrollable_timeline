@@ -144,18 +144,17 @@ class _AnimatedScrollableTimelineWidgetState
                   child: CustomPaint(
                     isComplex: true,
                     painter: TimelinePainter.general(
+                      repaint: controller,
                       dateTimeFormat: widget.dateTimeFormat ??
                           AnimatedScrollableTimelineWidget
                               ._defaultDateTimeFormat,
                       largeDivisionHeight: widget.largeDivisionHeight,
                       smallDivisionHeight: widget.smallDivisionHeight,
                       devicePixelRatio: pixelRatio,
-                      centralDate: currentTime,
                       dividersAmount: widget.dividersAmount,
                       dividerWidth: widget.dividerWidth,
                       divisionGap: widget.divisionGap,
                       gapDuration: widget.gapDuration,
-                      value: animHand ? animValue : animation.value,
                     ),
                   ),
                 );

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:animated_scrollable_timeline/src/past_part_painter.dart';
 import 'package:animated_scrollable_timeline/src/timeline_painter.dart';
 import 'package:flutter/material.dart';
@@ -66,33 +64,19 @@ class AnimatedTimeline extends StatefulWidget {
 
 class _AnimatedTimelineState extends State<AnimatedTimeline>
     with SingleTickerProviderStateMixin {
-  late Timer timer;
-  late Animation animation;
   late AnimationController controller;
-  double get ars => widget.dividerWidth + widget.divisionGap;
-  DateTime currentTime = DateTime.now();
-  DateTime? limitTime;
-  Duration timeOffset = Duration.zero;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final double pixelRatio = MediaQuery.of(context).devicePixelRatio;
     controller = AnimationController(
       vsync: this,
       duration: widget.gapDuration,
-    )..addStatusListener(animationStatusListener);
-
-    animation = Tween<double>(
-      begin: 0,
-      end: (widget.dividerWidth + widget.divisionGap) / pixelRatio,
-    ).animate(controller);
-    controller.forward();
+    )..repeat();
   }
 
   @override
   void dispose() {
-    controller.removeStatusListener(animationStatusListener);
     controller.dispose();
     super.dispose();
   }
@@ -104,28 +88,22 @@ class _AnimatedTimelineState extends State<AnimatedTimeline>
       child: Stack(
         fit: StackFit.passthrough,
         children: [
-          AnimatedBuilder(
-            animation: animation,
-            builder: (context, child) {
-              return RepaintBoundary(
-                child: CustomPaint(
-                  isComplex: true,
-                  painter: TimelinePainter.general(
-                    dateTimeFormat: widget.dateTimeFormat ??
-                        AnimatedTimeline._defaultDateTimeFormat,
-                    largeDivisionHeight: widget.largeDivisionHeight,
-                    smallDivisionHeight: widget.smallDivisionHeight,
-                    devicePixelRatio: pixelRatio,
-                    centralDate: currentTime,
-                    dividersAmount: widget.dividersAmount,
-                    dividerWidth: widget.dividerWidth,
-                    divisionGap: widget.divisionGap,
-                    gapDuration: widget.gapDuration,
-                    value: animation.value,
-                  ),
-                ),
-              );
-            },
+          RepaintBoundary(
+            child: CustomPaint(
+              isComplex: true,
+              painter: TimelinePainter.general(
+                repaint: controller,
+                dateTimeFormat: widget.dateTimeFormat ??
+                    AnimatedTimeline._defaultDateTimeFormat,
+                largeDivisionHeight: widget.largeDivisionHeight,
+                smallDivisionHeight: widget.smallDivisionHeight,
+                devicePixelRatio: pixelRatio,
+                dividersAmount: widget.dividersAmount,
+                dividerWidth: widget.dividerWidth,
+                divisionGap: widget.divisionGap,
+                gapDuration: widget.gapDuration,
+              ),
+            ),
           ),
           RepaintBoundary(
             child: CustomPaint(
@@ -137,15 +115,5 @@ class _AnimatedTimelineState extends State<AnimatedTimeline>
         ],
       ),
     );
-  }
-
-  void animationStatusListener(AnimationStatus status) {
-    if (status == AnimationStatus.completed) {
-      controller.reset();
-      setState(() {
-        currentTime = currentTime.add(widget.gapDuration).subtract(timeOffset);
-      });
-      controller.forward();
-    }
   }
 }
