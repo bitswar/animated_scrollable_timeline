@@ -25,7 +25,7 @@ A Flutter widget that provides an infinite scrollable timeline with smooth anima
 - Smooth animations for time progression
 - Customizable time divisions and gaps
 - Support for both left and right scrolling (in scrollable version)
-- Custom date/time formatting
+- Custom date/time formatting using DateFormat
 - Time limit constraints (in scrollable version)
 - Gesture-based interaction (in scrollable version)
 - High-performance rendering with `RepaintBoundary`
@@ -37,6 +37,7 @@ Add this to your package's `pubspec.yaml` file:
 ```yaml
 dependencies:
   animated_scrollable_timeline: any
+  intl: ^0.19.0  # Required for date formatting
 ```
 
 ## Development
@@ -67,8 +68,8 @@ melos bootstrap
 Here's a basic example of how to use the `AnimatedScrollableTimelineWidget`:
 
 ```dart
-
 import 'package:animated_scrollable_timeline/animated_scrollable_timeline.dart';
+import 'package:intl/intl.dart';
 
 // Inside your widget tree
 AnimatedScrollableTimelineWidget(
@@ -82,10 +83,7 @@ AnimatedScrollableTimelineWidget(
     // Callback when a time is selected
     print('Selected time: $time');
   },
-  dateTimeFormat: (DateTime dateTime) {
-    // Custom date/time formatting
-    return '${dateTime.hour}:${dateTime.minute}';
-  },
+  dateFormat: DateFormat('HH:mm:ss'), // Custom date/time format
   limitDateTime: () {
     // Optional time limit
     return DateTime.now().add(const Duration(hours: 24));
@@ -101,6 +99,7 @@ Here's an example of how to use the simpler `AnimatedTimeline`:
 
 ```dart
 import 'package:animated_scrollable_timeline/animated_scrollable_timeline.dart';
+import 'package:intl/intl.dart';
 
 // Inside your widget tree
 AnimatedTimeline(
@@ -108,11 +107,7 @@ AnimatedTimeline(
   divisionGap: 21, // Gap between divisions
   dividersAmount: 10, // Number of dividers to show
   gapDuration: const Duration(seconds: 1), // Time gap between divisions
-  currentTime: DateTime.now(), // Current time to display
-  dateTimeFormat: (DateTime dateTime) {
-    // Custom date/time formatting
-    return '${dateTime.hour}:${dateTime.minute}';
-  },
+  dateFormat: DateFormat('HH:mm:ss'), // Custom date/time format
   largeDivisionHeight: 36, // Height of large divisions
   smallDivisionHeight: 12, // Height of small divisions
 )
@@ -129,7 +124,7 @@ AnimatedTimeline(
 - `scrollRight`: Enable scrolling to the right (default: true)
 - `scrollLeft`: Enable scrolling to the left (default: true)
 - `onChosedTime`: Callback function when a time is selected
-- `dateTimeFormat`: Custom function to format the date/time display
+- `dateFormat`: DateFormat to use for displaying time labels (default: HH:mm:ss)
 - `limitDateTime`: Optional function to set a time limit
 - `largeDivisionHeight`: Height of large divisions (default: 36)
 - `smallDivisionHeight`: Height of small divisions (default: 12)
@@ -140,8 +135,7 @@ AnimatedTimeline(
 - `divisionGap`: Gap between divisions (default: 21)
 - `dividersAmount`: Number of dividers to show (default: 10)
 - `gapDuration`: Time gap between divisions (default: 1 second)
-- `currentTime`: Current time to display in the timeline
-- `dateTimeFormat`: Custom function to format the date/time display
+- `dateFormat`: DateFormat to use for displaying time labels (default: HH:mm:ss)
 - `largeDivisionHeight`: Height of large divisions (default: 36)
 - `smallDivisionHeight`: Height of small divisions (default: 12)
 
@@ -149,6 +143,7 @@ AnimatedTimeline(
 
 - Flutter SDK >= 1.17.0
 - Dart SDK >= 3.0.0
+- intl package >= 0.19.0
 
 ## License
 

@@ -1,0 +1,4 @@
+# melos_managed_dependency_overrides: animated_scrollable_timeline
+dependency_overrides:
+  animated_scrollable_timeline:
+    path: ..

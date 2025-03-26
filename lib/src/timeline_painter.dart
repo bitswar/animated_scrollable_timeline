@@ -1,5 +1,6 @@
 import 'package:animated_scrollable_timeline/src/enums/draw_direction.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 
 class TimelinePainter extends CustomPainter {
 /* ------------------------------ Dependencies ------------------------------ */
@@ -22,14 +23,16 @@ class TimelinePainter extends CustomPainter {
   final double dividerWidth;
   final double devicePixelRatio;
   final Duration gapDuration;
-  final String Function(DateTime) dateTimeFormat;
+  final DateFormat dateFormat;
+  final Path _path;
+  final TextPainter _textPainter;
+  late TextSpan _textSpan;
   DateTime _offsetDate = DateTime.now();
 /* -------------------------------------------------------------------------- */
   double get ratioGap => divisionGap / devicePixelRatio;
   double get ratioWidth => dividerWidth / devicePixelRatio;
 /* -------------------------------- Painters -------------------------------- */
   final Paint linePaint;
-/* -------------------------------------------------------------------------- */
   final Paint futureLinePaint;
 /* ------------------------------- Constructor ------------------------------ */
   TimelinePainter({
@@ -41,10 +44,15 @@ class TimelinePainter extends CustomPainter {
     required this.divisionGap,
     required this.dividerWidth,
     required this.gapDuration,
-    required this.dateTimeFormat,
+    required this.dateFormat,
     required this.linePaint,
     required this.futureLinePaint,
-  });
+  })  : _path = Path(),
+        _textPainter = TextPainter(
+          textDirection: TextDirection.ltr,
+        ) {
+    _textSpan = const TextSpan(text: '', style: pastStyle);
+  }
 /* -------------------------------------------------------------------------- */
   factory TimelinePainter.general({
     required double smallDivisionHeight,
@@ -54,7 +62,7 @@ class TimelinePainter extends CustomPainter {
     required double divisionGap,
     required double dividerWidth,
     required Duration gapDuration,
-    required String Function(DateTime) dateTimeFormat,
+    required DateFormat dateFormat,
     Listenable? repaint,
   }) {
     final linePaint = Paint()
@@ -74,7 +82,7 @@ class TimelinePainter extends CustomPainter {
       divisionGap: divisionGap,
       dividerWidth: dividerWidth,
       gapDuration: gapDuration,
-      dateTimeFormat: dateTimeFormat,
+      dateFormat: dateFormat,
       repaint: repaint,
       linePaint: linePaint,
       futureLinePaint: futureLinePaint,
@@ -84,33 +92,44 @@ class TimelinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     _offsetDate = DateTime.now();
-
     linePaint.strokeWidth = dividerWidth;
     canvas.translate(size.width / 2, 0);
 
     _drawTimelinePart(
-        canvas, Path(), size, _offsetDate, size.width, DrawDirection.future);
+        canvas, size, _offsetDate, size.width, DrawDirection.future);
     _drawTimelinePart(
-        canvas, Path(), size, _offsetDate, size.width, DrawDirection.past);
+        canvas, size, _offsetDate, size.width, DrawDirection.past);
   }
 
 /* -------------------------------------------------------------------------- */
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+  bool shouldRepaint(covariant TimelinePainter oldDelegate) {
     return false;
+  }
+
+/* -------------------------------------------------------------------------- */
+  void _drawDivision(
+    Canvas canvas,
+    Offset position,
+    Paint painter, {
+    required double height,
+  }) {
+    _path.reset();
+    _path.moveTo(position.dx, position.dy);
+    _path.lineTo(position.dx, position.dy - height);
+    canvas.drawPath(_path, painter);
   }
 
 /* -------------------------------------------------------------------------- */
   void _drawTimelinePart(
     Canvas canvas,
-    Path path,
     Size size,
     DateTime centralDate,
     double drawLength,
     DrawDirection direction,
   ) {
     final duration = gapDuration * direction.multiplier;
-    final offsetY = size.height / 2;
+    final centerY = size.height / 2;
     final painter =
         direction == DrawDirection.future ? futureLinePaint : linePaint;
 
@@ -121,61 +140,31 @@ class TimelinePainter extends CustomPainter {
     for (double j = 0; j < drawLength; j += ratioGap + ratioWidth, i++) {
       final offsetX =
           direction.multiplier * (ratioWidth + ratioGap) * i - smoothValue;
+
       if (centralDate.second % dividersAmount == 0) {
-        _drawLargeDivision(
+        _drawDivision(
           canvas,
-          path,
-          size,
-          Offset(offsetX, offsetY),
+          Offset(offsetX, centerY),
           painter,
+          height: largeDivisionHeight,
         );
         _drawTime(
           canvas,
-          Offset(offsetX, offsetY),
+          Offset(offsetX, centerY),
           size,
           centralDate,
           direction == DrawDirection.past,
         );
       } else {
-        _drawSmallDivision(
+        _drawDivision(
           canvas,
-          path,
-          size,
-          Offset(offsetX, offsetY),
+          Offset(offsetX, centerY - 4),
           painter,
+          height: smallDivisionHeight,
         );
       }
       centralDate = centralDate.add(duration);
     }
-  }
-
-/* -------------------------------------------------------------------------- */
-  void _drawSmallDivision(
-    Canvas canvas,
-    Path path,
-    Size size,
-    Offset position,
-    Paint painter,
-  ) {
-    path.moveTo(position.dx, size.height / 2 - 4);
-    path.lineTo(position.dx, size.height / 2 - smallDivisionHeight - 4);
-    canvas.drawPath(path, painter);
-  }
-
-/* -------------------------------------------------------------------------- */
-  void _drawLargeDivision(
-    Canvas canvas,
-    Path path,
-    Size size,
-    Offset position,
-    Paint painter,
-  ) {
-    path.moveTo(position.dx, size.height / 2);
-    path.lineTo(position.dx, size.height / 2 - largeDivisionHeight);
-    canvas.drawPath(
-      path,
-      painter,
-    );
   }
 
 /* -------------------------------------------------------------------------- */
@@ -186,26 +175,19 @@ class TimelinePainter extends CustomPainter {
     DateTime currentTime,
     bool isPast,
   ) {
-    String formattedDate = dateTimeFormat(currentTime);
-
-    var timeSpan = TextSpan(
-      text: formattedDate,
+    _textSpan = TextSpan(
+      text: dateFormat.format(currentTime),
       style: isPast ? pastStyle : futureStyle,
     );
+    _textPainter.text = _textSpan;
 
-    TextPainter textPainter = TextPainter(
-      text: timeSpan,
-      textDirection: TextDirection.ltr,
-    );
-
-    textPainter.layout(
+    _textPainter.layout(
       minWidth: 0,
       maxWidth: size.width,
     );
 
-    textPainter.paint(
+    _textPainter.paint(
         canvas, Offset(position.dx + 4, position.dy - largeDivisionHeight - 2));
   }
-
 /* -------------------------------------------------------------------------- */
 }

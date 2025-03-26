@@ -29,9 +29,7 @@ class MyApp extends StatelessWidget {
               right: 0,
               bottom: 0,
               child: AnimatedTimeline(
-                dateTimeFormat: (dateTime) {
-                  return DateFormat('HH:mm:ss').format(dateTime);
-                },
+                dateFormat: DateFormat('HH:mm:ss'),
               ),
             ),
             Positioned(
@@ -40,9 +38,7 @@ class MyApp extends StatelessWidget {
               right: 0,
               bottom: 0,
               child: AnimatedTimeline(
-                dateTimeFormat: (dateTime) {
-                  return DateFormat('HH:mm:ss').format(dateTime);
-                },
+                dateFormat: DateFormat('HH:mm:ss'),
                 divisionGap: 21,
                 dividersAmount: 5,
               ),
@@ -53,9 +49,7 @@ class MyApp extends StatelessWidget {
               right: 0,
               bottom: 0,
               child: AnimatedTimeline(
-                dateTimeFormat: (dateTime) {
-                  return DateFormat('mm:ss').format(dateTime);
-                },
+                dateFormat: DateFormat('mm:ss'),
                 divisionGap: 21,
                 dividersAmount: 10,
               ),
@@ -64,9 +58,7 @@ class MyApp extends StatelessWidget {
               limitDateTime: () => DateTime.now(),
               scrollRight: true,
               scrollLeft: true,
-              dateTimeFormat: (dateTime) {
-                return DateFormat('HH:mm:ss').format(dateTime);
-              },
+              dateFormat: DateFormat('HH:mm:ss'),
             ),
           ],
         ),

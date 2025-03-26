@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:animated_scrollable_timeline/src/past_part_painter.dart';
 import 'package:animated_scrollable_timeline/src/timeline_painter.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 /// A widget that displays an animated timeline with scrolling functionality.
 ///
@@ -35,9 +36,9 @@ class AnimatedScrollableTimelineWidget extends StatefulWidget {
   /// Callback function that is called when a time is selected through scrolling.
   final void Function(DateTime)? onChosedTime;
 
-  /// Function to format the date/time display.
-  /// If not provided, uses the default format.
-  final String Function(DateTime)? dateTimeFormat;
+  /// DateFormat to use for displaying time labels.
+  /// If not provided, uses the default format (HH:mm:ss).
+  final DateFormat dateFormat;
 
   /// Function to get the time limit for scrolling.
   /// If not provided, no time limit is enforced.
@@ -60,9 +61,10 @@ class AnimatedScrollableTimelineWidget extends StatefulWidget {
   /// - [scrollLeft]: true
   /// - [largeDivisionHeight]: 36.0
   /// - [smallDivisionHeight]: 12.0
+  /// - [dateFormat]: HH:mm:ss
   ///
-  /// The [dateTimeFormat], [onChosedTime], and [limitDateTime] callbacks are optional.
-  const AnimatedScrollableTimelineWidget({
+  /// The [onChosedTime] and [limitDateTime] callbacks are optional.
+  AnimatedScrollableTimelineWidget({
     super.key,
     this.dividerWidth = 1,
     this.divisionGap = 21,
@@ -72,13 +74,10 @@ class AnimatedScrollableTimelineWidget extends StatefulWidget {
     this.scrollLeft = true,
     this.limitDateTime,
     this.onChosedTime,
-    this.dateTimeFormat,
+    DateFormat? dateFormat,
     this.largeDivisionHeight = 36,
     this.smallDivisionHeight = 12,
-  });
-
-  static String _defaultDateTimeFormat(DateTime dateTime) =>
-      dateTime.toString();
+  }) : dateFormat = dateFormat ?? DateFormat('HH:mm:ss');
 
   @override
   State<AnimatedScrollableTimelineWidget> createState() =>
@@ -145,9 +144,7 @@ class _AnimatedScrollableTimelineWidgetState
                     isComplex: true,
                     painter: TimelinePainter.general(
                       repaint: controller,
-                      dateTimeFormat: widget.dateTimeFormat ??
-                          AnimatedScrollableTimelineWidget
-                              ._defaultDateTimeFormat,
+                      dateFormat: widget.dateFormat,
                       largeDivisionHeight: widget.largeDivisionHeight,
                       smallDivisionHeight: widget.smallDivisionHeight,
                       devicePixelRatio: pixelRatio,
