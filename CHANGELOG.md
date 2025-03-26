@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/bitswar/animated_scrollable_timeline/compare/2.0.0...2.0.1) (2025-03-26)
+
+
+### Bug Fixes
+
+* **repaints:** reduced amount of repaints and optimized performance ([9307457](https://github.com/bitswar/animated_scrollable_timeline/commit/9307457cc92382b2353803a1911d7e453423d6f2))
+
 # [2.0.0](https://github.com/bitswar/animated_scrollable_timeline/compare/1.0.3...2.0.0) (2025-03-24)
 
 
